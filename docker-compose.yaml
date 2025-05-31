@@ -1,0 +1,52 @@
+services:
+  # app:
+  #   build:
+  #     context: .               
+  #     dockerfile: Dockerfile  
+  #   container_name: fethcher
+  #   environment:
+  #     - DATABASE_URL=host=db user=postgres password=postgres dbname=lime sslmode=disable
+  #     - ETH_NODE_URL=https://sepolia.infura.io/v3/your_project_id_here
+  #     - PORT=9205
+  #   ports:
+  #     - "9205:9205"
+  #   networks:
+  #     - lime-net
+  app-debug:
+    image: golang:1.23
+    container_name: fethcher
+    volumes:
+      - .:/app
+    working_dir: /app
+    tty: true
+    environment:
+      - DATABASE_URL=host=db user=postgres password=postgres dbname=lime sslmode=disable
+      - ETH_NODE_URL=https://sepolia.infura.io/v3/your_project_id_here
+      - PORT=9205
+    ports:
+      - "9205:9205"
+    networks:
+      - lime-net
+
+  db:
+    image: postgres:15
+    container_name: lime-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: lime
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - lime-net
+
+volumes:
+  pgdata:
+
+
+networks:
+  lime-net:
+    driver: bridge
