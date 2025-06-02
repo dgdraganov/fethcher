@@ -10,19 +10,19 @@ import (
 
 var ErrUserNotFound error = errors.New("user not found")
 
-type FethRepo struct {
-	db Database
+type TransactionRepository struct {
+	db Storage
 }
 
-func NewFethRepo(db Database) *FethRepo {
-	return &FethRepo{
+func NewTransactionRepository(db Storage) *TransactionRepository {
+	return &TransactionRepository{
 		db: db,
 	}
 }
 
-func (r *FethRepo) MigrateAndSeed(dbName string) error {
+func (r *TransactionRepository) MigrateAndSeed() error {
 
-	err := r.db.MigrateTable(&Transaction{}, &User{})
+	err := r.db.MigrateTable(&Transaction{}, &User{}, &UserTransaction{})
 	if err != nil {
 		return fmt.Errorf("migrate table(s): %w", err)
 	}
@@ -49,7 +49,7 @@ func (r *FethRepo) MigrateAndSeed(dbName string) error {
 			PasswordHash: "$2a$10$53qBwnstmYjn4S5HbYoiYe5i.SyQxyZfBiPiCoB1241HRtpVYFMvG",
 		},
 	}
-	err = r.db.SeedDB(&users)
+	err = r.db.SaveToTable(&users)
 	if err != nil {
 		return fmt.Errorf("seed database: %w", err)
 	}
@@ -57,10 +57,58 @@ func (r *FethRepo) MigrateAndSeed(dbName string) error {
 	return nil
 }
 
-func (r *FethRepo) GetUserFromDB(username, password string) (User, error) {
+func (r *TransactionRepository) SaveTransactions(transactions []Transaction) error {
+	err := r.db.SaveToTable(&transactions)
+	if err != nil {
+		return fmt.Errorf("save to table: %w", err)
+	}
+
+	return nil
+}
+func (r *TransactionRepository) GetUserHistory(userID string) ([]string, error) {
+	var userTransactions []UserTransaction
+
+	err := r.db.GetAllBy("user_id", userID, &userTransactions)
+	if err != nil {
+		if errors.Is(err, db.ErrNotFound) {
+			return nil, fmt.Errorf("get user history: %w", ErrUserNotFound)
+		}
+		return nil, fmt.Errorf("get user history: %w", err)
+	}
+
+	txHashes := make([]string, 0, len(userTransactions))
+	for _, tx := range userTransactions {
+		txHashes = append(txHashes, tx.TransactionHash)
+	}
+
+	return txHashes, nil
+}
+
+func (r *TransactionRepository) SaveUserHistory(userID string, transactions []string) error {
+	if len(transactions) == 0 {
+		return nil
+	}
+
+	userTransactions := make([]UserTransaction, 0, len(transactions))
+	for _, tx := range transactions {
+		userTransactions = append(userTransactions, UserTransaction{
+			UserID:          userID,
+			TransactionHash: tx,
+		})
+	}
+
+	err := r.db.SaveToTable(&userTransactions)
+	if err != nil {
+		return fmt.Errorf("save user history: %w", err)
+	}
+
+	return nil
+}
+
+func (r *TransactionRepository) GetUserFromDB(username, password string) (User, error) {
 	var user User
 
-	err := r.db.GetBy("username", username, &user)
+	err := r.db.GetOneBy("username", username, &user)
 	if err != nil {
 		if errors.Is(err, db.ErrNotFound) {
 			return User{}, ErrUserNotFound
@@ -69,4 +117,14 @@ func (r *FethRepo) GetUserFromDB(username, password string) (User, error) {
 	}
 
 	return user, nil
+}
+
+func (r *TransactionRepository) GetTransactionsByHash(txHashes []string) ([]Transaction, error) {
+	transactions := []Transaction{}
+	err := r.db.GetAllBy("transaction_hash", txHashes, &transactions)
+	if err != nil {
+		return transactions, fmt.Errorf("get transaction by hash: %w", err)
+	}
+
+	return transactions, nil
 }

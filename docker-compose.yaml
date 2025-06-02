@@ -32,12 +32,12 @@ services:
 
   db:
     image: postgres:15
-    container_name: lime-db
+    container_name: feth-db
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: lime
+      POSTGRES_DB: fethcher
     ports:
       - "5432:5432"
     volumes:

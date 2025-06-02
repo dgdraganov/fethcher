@@ -1,3 +1,4 @@
+GOLANGCI_LINT_VERSION := v2.1.6
 
 run:
 	API_PORT=9205 \
@@ -9,8 +10,18 @@ run:
 test:
 	go test -v ./...
 
-compose:
+up:
 	docker compose up -d --build
 
-decompose:
+down:
 	docker compose down
+
+install-deps:
+	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION)
+
+lint:
+	golangci-lint run
+
+generate-fakes:
+	go get github.com/maxbrunsfeld/counterfeiter/v6
+	go generate ./...

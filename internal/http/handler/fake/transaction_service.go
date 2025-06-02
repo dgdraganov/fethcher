@@ -2,6 +2,7 @@
 package fake
 
 import (
+	"context"
 	"fethcher/internal/core"
 	"fethcher/internal/http/handler"
 	"sync"
@@ -20,6 +21,61 @@ type TransactionService struct {
 	authenticateReturnsOnCall map[int]struct {
 		result1 string
 		result2 error
+	}
+	GetTransactionsStub        func(context.Context, []string) ([]core.TransactionRecord, error)
+	getTransactionsMutex       sync.RWMutex
+	getTransactionsArgsForCall []struct {
+		arg1 context.Context
+		arg2 []string
+	}
+	getTransactionsReturns struct {
+		result1 []core.TransactionRecord
+		result2 error
+	}
+	getTransactionsReturnsOnCall map[int]struct {
+		result1 []core.TransactionRecord
+		result2 error
+	}
+	GetTransactionsRLPStub        func(context.Context, string) ([]core.TransactionRecord, error)
+	getTransactionsRLPMutex       sync.RWMutex
+	getTransactionsRLPArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+	}
+	getTransactionsRLPReturns struct {
+		result1 []core.TransactionRecord
+		result2 error
+	}
+	getTransactionsRLPReturnsOnCall map[int]struct {
+		result1 []core.TransactionRecord
+		result2 error
+	}
+	GetUserTransactionsHistoryStub        func(context.Context, string) ([]core.TransactionRecord, error)
+	getUserTransactionsHistoryMutex       sync.RWMutex
+	getUserTransactionsHistoryArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+	}
+	getUserTransactionsHistoryReturns struct {
+		result1 []core.TransactionRecord
+		result2 error
+	}
+	getUserTransactionsHistoryReturnsOnCall map[int]struct {
+		result1 []core.TransactionRecord
+		result2 error
+	}
+	SaveUserTransactionsHistoryStub        func(context.Context, string, []string) error
+	saveUserTransactionsHistoryMutex       sync.RWMutex
+	saveUserTransactionsHistoryArgsForCall []struct {
+		arg1 context.Context
+		arg2 string
+		arg3 []string
+	}
+	saveUserTransactionsHistoryReturns struct {
+		result1 error
+	}
+	saveUserTransactionsHistoryReturnsOnCall map[int]struct {
+		result1 error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
@@ -89,11 +145,287 @@ func (fake *TransactionService) AuthenticateReturnsOnCall(i int, result1 string,
 	}{result1, result2}
 }
 
+func (fake *TransactionService) GetTransactions(arg1 context.Context, arg2 []string) ([]core.TransactionRecord, error) {
+	var arg2Copy []string
+	if arg2 != nil {
+		arg2Copy = make([]string, len(arg2))
+		copy(arg2Copy, arg2)
+	}
+	fake.getTransactionsMutex.Lock()
+	ret, specificReturn := fake.getTransactionsReturnsOnCall[len(fake.getTransactionsArgsForCall)]
+	fake.getTransactionsArgsForCall = append(fake.getTransactionsArgsForCall, struct {
+		arg1 context.Context
+		arg2 []string
+	}{arg1, arg2Copy})
+	stub := fake.GetTransactionsStub
+	fakeReturns := fake.getTransactionsReturns
+	fake.recordInvocation("GetTransactions", []interface{}{arg1, arg2Copy})
+	fake.getTransactionsMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *TransactionService) GetTransactionsCallCount() int {
+	fake.getTransactionsMutex.RLock()
+	defer fake.getTransactionsMutex.RUnlock()
+	return len(fake.getTransactionsArgsForCall)
+}
+
+func (fake *TransactionService) GetTransactionsCalls(stub func(context.Context, []string) ([]core.TransactionRecord, error)) {
+	fake.getTransactionsMutex.Lock()
+	defer fake.getTransactionsMutex.Unlock()
+	fake.GetTransactionsStub = stub
+}
+
+func (fake *TransactionService) GetTransactionsArgsForCall(i int) (context.Context, []string) {
+	fake.getTransactionsMutex.RLock()
+	defer fake.getTransactionsMutex.RUnlock()
+	argsForCall := fake.getTransactionsArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *TransactionService) GetTransactionsReturns(result1 []core.TransactionRecord, result2 error) {
+	fake.getTransactionsMutex.Lock()
+	defer fake.getTransactionsMutex.Unlock()
+	fake.GetTransactionsStub = nil
+	fake.getTransactionsReturns = struct {
+		result1 []core.TransactionRecord
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *TransactionService) GetTransactionsReturnsOnCall(i int, result1 []core.TransactionRecord, result2 error) {
+	fake.getTransactionsMutex.Lock()
+	defer fake.getTransactionsMutex.Unlock()
+	fake.GetTransactionsStub = nil
+	if fake.getTransactionsReturnsOnCall == nil {
+		fake.getTransactionsReturnsOnCall = make(map[int]struct {
+			result1 []core.TransactionRecord
+			result2 error
+		})
+	}
+	fake.getTransactionsReturnsOnCall[i] = struct {
+		result1 []core.TransactionRecord
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *TransactionService) GetTransactionsRLP(arg1 context.Context, arg2 string) ([]core.TransactionRecord, error) {
+	fake.getTransactionsRLPMutex.Lock()
+	ret, specificReturn := fake.getTransactionsRLPReturnsOnCall[len(fake.getTransactionsRLPArgsForCall)]
+	fake.getTransactionsRLPArgsForCall = append(fake.getTransactionsRLPArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.GetTransactionsRLPStub
+	fakeReturns := fake.getTransactionsRLPReturns
+	fake.recordInvocation("GetTransactionsRLP", []interface{}{arg1, arg2})
+	fake.getTransactionsRLPMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *TransactionService) GetTransactionsRLPCallCount() int {
+	fake.getTransactionsRLPMutex.RLock()
+	defer fake.getTransactionsRLPMutex.RUnlock()
+	return len(fake.getTransactionsRLPArgsForCall)
+}
+
+func (fake *TransactionService) GetTransactionsRLPCalls(stub func(context.Context, string) ([]core.TransactionRecord, error)) {
+	fake.getTransactionsRLPMutex.Lock()
+	defer fake.getTransactionsRLPMutex.Unlock()
+	fake.GetTransactionsRLPStub = stub
+}
+
+func (fake *TransactionService) GetTransactionsRLPArgsForCall(i int) (context.Context, string) {
+	fake.getTransactionsRLPMutex.RLock()
+	defer fake.getTransactionsRLPMutex.RUnlock()
+	argsForCall := fake.getTransactionsRLPArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *TransactionService) GetTransactionsRLPReturns(result1 []core.TransactionRecord, result2 error) {
+	fake.getTransactionsRLPMutex.Lock()
+	defer fake.getTransactionsRLPMutex.Unlock()
+	fake.GetTransactionsRLPStub = nil
+	fake.getTransactionsRLPReturns = struct {
+		result1 []core.TransactionRecord
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *TransactionService) GetTransactionsRLPReturnsOnCall(i int, result1 []core.TransactionRecord, result2 error) {
+	fake.getTransactionsRLPMutex.Lock()
+	defer fake.getTransactionsRLPMutex.Unlock()
+	fake.GetTransactionsRLPStub = nil
+	if fake.getTransactionsRLPReturnsOnCall == nil {
+		fake.getTransactionsRLPReturnsOnCall = make(map[int]struct {
+			result1 []core.TransactionRecord
+			result2 error
+		})
+	}
+	fake.getTransactionsRLPReturnsOnCall[i] = struct {
+		result1 []core.TransactionRecord
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *TransactionService) GetUserTransactionsHistory(arg1 context.Context, arg2 string) ([]core.TransactionRecord, error) {
+	fake.getUserTransactionsHistoryMutex.Lock()
+	ret, specificReturn := fake.getUserTransactionsHistoryReturnsOnCall[len(fake.getUserTransactionsHistoryArgsForCall)]
+	fake.getUserTransactionsHistoryArgsForCall = append(fake.getUserTransactionsHistoryArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+	}{arg1, arg2})
+	stub := fake.GetUserTransactionsHistoryStub
+	fakeReturns := fake.getUserTransactionsHistoryReturns
+	fake.recordInvocation("GetUserTransactionsHistory", []interface{}{arg1, arg2})
+	fake.getUserTransactionsHistoryMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *TransactionService) GetUserTransactionsHistoryCallCount() int {
+	fake.getUserTransactionsHistoryMutex.RLock()
+	defer fake.getUserTransactionsHistoryMutex.RUnlock()
+	return len(fake.getUserTransactionsHistoryArgsForCall)
+}
+
+func (fake *TransactionService) GetUserTransactionsHistoryCalls(stub func(context.Context, string) ([]core.TransactionRecord, error)) {
+	fake.getUserTransactionsHistoryMutex.Lock()
+	defer fake.getUserTransactionsHistoryMutex.Unlock()
+	fake.GetUserTransactionsHistoryStub = stub
+}
+
+func (fake *TransactionService) GetUserTransactionsHistoryArgsForCall(i int) (context.Context, string) {
+	fake.getUserTransactionsHistoryMutex.RLock()
+	defer fake.getUserTransactionsHistoryMutex.RUnlock()
+	argsForCall := fake.getUserTransactionsHistoryArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *TransactionService) GetUserTransactionsHistoryReturns(result1 []core.TransactionRecord, result2 error) {
+	fake.getUserTransactionsHistoryMutex.Lock()
+	defer fake.getUserTransactionsHistoryMutex.Unlock()
+	fake.GetUserTransactionsHistoryStub = nil
+	fake.getUserTransactionsHistoryReturns = struct {
+		result1 []core.TransactionRecord
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *TransactionService) GetUserTransactionsHistoryReturnsOnCall(i int, result1 []core.TransactionRecord, result2 error) {
+	fake.getUserTransactionsHistoryMutex.Lock()
+	defer fake.getUserTransactionsHistoryMutex.Unlock()
+	fake.GetUserTransactionsHistoryStub = nil
+	if fake.getUserTransactionsHistoryReturnsOnCall == nil {
+		fake.getUserTransactionsHistoryReturnsOnCall = make(map[int]struct {
+			result1 []core.TransactionRecord
+			result2 error
+		})
+	}
+	fake.getUserTransactionsHistoryReturnsOnCall[i] = struct {
+		result1 []core.TransactionRecord
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *TransactionService) SaveUserTransactionsHistory(arg1 context.Context, arg2 string, arg3 []string) error {
+	var arg3Copy []string
+	if arg3 != nil {
+		arg3Copy = make([]string, len(arg3))
+		copy(arg3Copy, arg3)
+	}
+	fake.saveUserTransactionsHistoryMutex.Lock()
+	ret, specificReturn := fake.saveUserTransactionsHistoryReturnsOnCall[len(fake.saveUserTransactionsHistoryArgsForCall)]
+	fake.saveUserTransactionsHistoryArgsForCall = append(fake.saveUserTransactionsHistoryArgsForCall, struct {
+		arg1 context.Context
+		arg2 string
+		arg3 []string
+	}{arg1, arg2, arg3Copy})
+	stub := fake.SaveUserTransactionsHistoryStub
+	fakeReturns := fake.saveUserTransactionsHistoryReturns
+	fake.recordInvocation("SaveUserTransactionsHistory", []interface{}{arg1, arg2, arg3Copy})
+	fake.saveUserTransactionsHistoryMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2, arg3)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *TransactionService) SaveUserTransactionsHistoryCallCount() int {
+	fake.saveUserTransactionsHistoryMutex.RLock()
+	defer fake.saveUserTransactionsHistoryMutex.RUnlock()
+	return len(fake.saveUserTransactionsHistoryArgsForCall)
+}
+
+func (fake *TransactionService) SaveUserTransactionsHistoryCalls(stub func(context.Context, string, []string) error) {
+	fake.saveUserTransactionsHistoryMutex.Lock()
+	defer fake.saveUserTransactionsHistoryMutex.Unlock()
+	fake.SaveUserTransactionsHistoryStub = stub
+}
+
+func (fake *TransactionService) SaveUserTransactionsHistoryArgsForCall(i int) (context.Context, string, []string) {
+	fake.saveUserTransactionsHistoryMutex.RLock()
+	defer fake.saveUserTransactionsHistoryMutex.RUnlock()
+	argsForCall := fake.saveUserTransactionsHistoryArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+}
+
+func (fake *TransactionService) SaveUserTransactionsHistoryReturns(result1 error) {
+	fake.saveUserTransactionsHistoryMutex.Lock()
+	defer fake.saveUserTransactionsHistoryMutex.Unlock()
+	fake.SaveUserTransactionsHistoryStub = nil
+	fake.saveUserTransactionsHistoryReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *TransactionService) SaveUserTransactionsHistoryReturnsOnCall(i int, result1 error) {
+	fake.saveUserTransactionsHistoryMutex.Lock()
+	defer fake.saveUserTransactionsHistoryMutex.Unlock()
+	fake.SaveUserTransactionsHistoryStub = nil
+	if fake.saveUserTransactionsHistoryReturnsOnCall == nil {
+		fake.saveUserTransactionsHistoryReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.saveUserTransactionsHistoryReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *TransactionService) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
 	fake.authenticateMutex.RLock()
 	defer fake.authenticateMutex.RUnlock()
+	fake.getTransactionsMutex.RLock()
+	defer fake.getTransactionsMutex.RUnlock()
+	fake.getTransactionsRLPMutex.RLock()
+	defer fake.getTransactionsRLPMutex.RUnlock()
+	fake.getUserTransactionsHistoryMutex.RLock()
+	defer fake.getUserTransactionsHistoryMutex.RUnlock()
+	fake.saveUserTransactionsHistoryMutex.RLock()
+	defer fake.saveUserTransactionsHistoryMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

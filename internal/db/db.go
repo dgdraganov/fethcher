@@ -12,25 +12,25 @@ import (
 
 var ErrNotFound = errors.New("record not found")
 
-type FethDB struct {
+type PostgresDB struct {
 	db *gorm.DB
 }
 
-func NewFethDB(dsn string) (*FethDB, error) {
+func NewPostgresDB(dsn string) (*PostgresDB, error) {
 	var err error
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
-		return &FethDB{}, fmt.Errorf("failed to connect to database: %w", err)
+		return &PostgresDB{}, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	return &FethDB{
+	return &PostgresDB{
 		db: db,
 	}, nil
 }
 
-func (f *FethDB) MigrateTable(tbl ...any) error {
+func (f *PostgresDB) MigrateTable(tbl ...any) error {
 	err := f.db.AutoMigrate(tbl...)
 	if err != nil {
 		return fmt.Errorf("failed to migrate table: %w", err)
@@ -39,7 +39,7 @@ func (f *FethDB) MigrateTable(tbl ...any) error {
 	return nil
 }
 
-func (f *FethDB) SeedDB(records any) error {
+func (f *PostgresDB) SaveToTable(records any) error {
 
 	v := reflect.ValueOf(records)
 	if v.Kind() != reflect.Ptr || v.Elem().Kind() != reflect.Slice {
@@ -51,8 +51,9 @@ func (f *FethDB) SeedDB(records any) error {
 		return nil
 	}
 
-	elemType := slice.Index(0).Interface()
 	var count int64
+
+	elemType := slice.Index(0).Interface()
 	if err := f.db.Model(elemType).Count(&count).Error; err != nil {
 		return fmt.Errorf("get model count: %w", err)
 	}
@@ -68,7 +69,7 @@ func (f *FethDB) SeedDB(records any) error {
 	return nil
 }
 
-func (f *FethDB) CreateDB(dbName string) error {
+func (f *PostgresDB) CreateDB(dbName string) error {
 	if dbName == "" {
 		return errors.New("database name cannot be empty")
 	}
@@ -78,8 +79,9 @@ func (f *FethDB) CreateDB(dbName string) error {
 		return fmt.Errorf("get sql db conn: %w", err)
 	}
 
-	var exists bool
 	query := `SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = $1)`
+
+	var exists bool
 	if err := sqlDB.QueryRow(query, dbName).Scan(&exists); err != nil {
 		return fmt.Errorf("check db exists: %w", err)
 	}
@@ -97,7 +99,7 @@ func (f *FethDB) CreateDB(dbName string) error {
 	return nil
 }
 
-func (f *FethDB) GetBy(column string, value any, entity any) error {
+func (f *PostgresDB) GetOneBy(column string, value any, entity any) error {
 	query := fmt.Sprintf("%s = ?", column)
 	err := f.db.Where(query, value).First(&entity).Error
 	if err != nil {
@@ -105,6 +107,14 @@ func (f *FethDB) GetBy(column string, value any, entity any) error {
 			return ErrNotFound
 		}
 		return fmt.Errorf("getting record by %q: %w", column, err)
+	}
+	return nil
+}
+
+func (f *PostgresDB) GetAllBy(column string, value any, entity any) error {
+	tx := f.db.Where(fmt.Sprintf("%s IN ?", column), value).Find(entity)
+	if tx.Error != nil {
+		return fmt.Errorf("getting records by %q: %w", column, tx.Error)
 	}
 	return nil
 }

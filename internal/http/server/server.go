@@ -30,6 +30,7 @@ func (s *HTTPServer) Run() <-chan error {
 		"service starting",
 		"app_port", s.server.Addr,
 	)
+
 	errChan := make(chan error)
 	go func() {
 		if err := s.server.ListenAndServe(); err != nil {
@@ -42,6 +43,7 @@ func (s *HTTPServer) Run() <-chan error {
 
 func (s *HTTPServer) Shutdown() error {
 	s.logs.Info("shutting down server...")
+
 	if err := s.server.Shutdown(context.Background()); err != nil {
 		s.logs.Error(
 			"server shutdown failed",

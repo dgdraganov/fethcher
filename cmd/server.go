@@ -4,6 +4,7 @@ import (
 	"fethcher/internal/config"
 	"fethcher/internal/core"
 	"fethcher/internal/db"
+	"fethcher/internal/ethereum"
 	"fethcher/internal/http/handler"
 	"fethcher/internal/http/payload"
 	"fethcher/internal/http/server"
@@ -20,20 +21,14 @@ import (
 
 func Start() error {
 	logger := log.NewZapLogger("fethcher", zapcore.InfoLevel)
-	config, err := config.NewApp()
+	config, err := config.NewAppConfig()
 	if err != nil {
-		logger.Errorw("failed to get config", "error", err)
+		logger.Errorw("failed to create config", "error", err)
 		return err
 	}
 
-	// connect to the default DB as fethcher database does not exist yet
-	dbConn, err := db.NewFethDB("host=db user=postgres password=postgres dbname=postgres sslmode=disable")
-	if err != nil {
-		logger.Errorw("failed to connect to database", "error", err)
-		return err
-	}
 	// now 'fethcher' database exsists and we can connect to it
-	dbConn, err = db.NewFethDB(config.DBConnectionString)
+	dbConn, err := db.NewPostgresDB(config.DBConnectionString)
 	if err != nil {
 		logger.Errorw("failed to connect to database", "error", err)
 		return err
@@ -43,15 +38,21 @@ func Start() error {
 	jwtService := jwt.NewJWTService([]byte(config.JWTSecret))
 
 	// repository
-	repo := repository.NewFethRepo(dbConn)
-	err = repo.MigrateAndSeed("fetcher")
+	repo := repository.NewTransactionRepository(dbConn)
+	err = repo.MigrateAndSeed()
 	if err != nil {
 		logger.Errorw("failed to migrate and seed database", "error", err)
 		return err
 	}
 
+	ethService, err := ethereum.NewEthService()
+	if err != nil {
+		logger.Errorw("failed to create ethereum service", "error", err)
+		return err
+	}
+
 	// fethcher
-	fethcher := core.NewFethcher(logger, repo, jwtService)
+	fethcher := core.NewFethcher(logger, repo, jwtService, ethService)
 
 	// handler
 	limeHlr := handler.NewFethHandler(
@@ -63,6 +64,8 @@ func Start() error {
 	// register routes
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /lime/authenticate", limeHlr.HandleAuthenticate)
+	mux.HandleFunc("GET /lime/eth", limeHlr.HandleGetTransactions)
+	mux.HandleFunc("GET /lime/eth/{rlpHash}", limeHlr.HandleGetTransactionsRLP)
 
 	srv := server.NewHTTP(logger, mux, config.Port)
 	return run(srv)

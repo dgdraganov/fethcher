@@ -10,6 +10,7 @@ import (
 
 var TimeNow = time.Now
 var ErrTokenNotValid error = errors.New("token is not valid")
+var ErrTokenExpired error = errors.New("token expired")
 
 type TokenInfo struct {
 	UserName   string
@@ -55,7 +56,7 @@ func (gen *JWTService) Validate(token string) (jwt.MapClaims, error) {
 		return gen.secret, nil
 	})
 	if err != nil {
-		return nil, fmt.Errorf("jwt parse: %w", err)
+		return nil, fmt.Errorf("jwt parse: %w: %w", err, ErrTokenNotValid)
 	}
 
 	if !jwtToken.Valid {
@@ -70,7 +71,7 @@ func (gen *JWTService) Validate(token string) (jwt.MapClaims, error) {
 
 	if expVal, ok := claims["exp"].(float64); ok {
 		if int64(expVal) < TimeNow().Unix() {
-			return nil, fmt.Errorf("token expired at %v", time.Unix(int64(expVal), 0))
+			return nil, fmt.Errorf("token expired at %v: ", time.Unix(int64(expVal), 0), ErrTokenExpired)
 		}
 	}
 
