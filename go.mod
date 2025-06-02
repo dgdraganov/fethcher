@@ -18,14 +18,18 @@ require (
 	github.com/ethereum/go-ethereum v1.15.11 // indirect
 	github.com/ethereum/go-verkle v0.2.2 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/holiman/uint256 v1.3.2 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/pgx/v5 v5.7.5 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
+	github.com/jellydator/validation v1.1.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
+	github.com/maxbrunsfeld/counterfeiter/v6 v6.11.2 // indirect
 	github.com/mmcloughlin/addchain v0.4.0 // indirect
 	github.com/shirou/gopsutil v3.21.11+incompatible // indirect
 	github.com/supranational/blst v0.3.14 // indirect
@@ -35,9 +39,11 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/crypto v0.38.0 // indirect
+	golang.org/x/mod v0.22.0 // indirect
 	golang.org/x/sync v0.14.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.25.0 // indirect
+	golang.org/x/tools v0.29.0 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
 	gorm.io/gorm v1.30.0 // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect

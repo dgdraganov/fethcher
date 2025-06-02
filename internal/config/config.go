@@ -16,10 +16,10 @@ const (
 )
 
 type App struct {
-	Port            string
-	NodeURL         string
-	DBConnectionURL string
-	JWTSecret       string
+	Port               string
+	NodeURL            string
+	DBConnectionString string
+	JWTSecret          string
 }
 
 func NewApp() (App, error) {
@@ -45,9 +45,9 @@ func NewApp() (App, error) {
 	}
 
 	return App{
-		Port:            port,
-		NodeURL:         nodeURL,
-		DBConnectionURL: dbConn,
-		JWTSecret:       jwtSecret,
+		Port:               port,
+		NodeURL:            nodeURL,
+		DBConnectionString: dbConn,
+		JWTSecret:          jwtSecret,
 	}, nil
 }

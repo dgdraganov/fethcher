@@ -5,9 +5,10 @@ services:
   #     dockerfile: Dockerfile  
   #   container_name: fethcher
   #   environment:
-  #     - DATABASE_URL=host=db user=postgres password=postgres dbname=lime sslmode=disable
-  #     - ETH_NODE_URL=https://sepolia.infura.io/v3/your_project_id_here
-  #     - PORT=9205
+  # - DB_CONNECTION_URL=host=db user=postgres password=postgres dbname=postgres sslmode=disable
+  # - ETH_NODE_URL=https://sepolia.infura.io/v3/your_project_id_here
+  # - API_PORT=9205
+  # - JWT_SECRET=4a03e22b74d3fc8edeff82390dc72f27c0a0bbf4c4e824a9ed15f1612a1c5cef
   #   ports:
   #     - "9205:9205"
   #   networks:
@@ -20,9 +21,10 @@ services:
     working_dir: /app
     tty: true
     environment:
-      - DATABASE_URL=host=db user=postgres password=postgres dbname=lime sslmode=disable
+      - DB_CONNECTION_URL=host=db user=postgres password=postgres dbname=fethcher sslmode=disable
       - ETH_NODE_URL=https://sepolia.infura.io/v3/your_project_id_here
-      - PORT=9205
+      - API_PORT=9205
+      - JWT_SECRET=4a03e22b74d3fc8edeff82390dc72f27c0a0bbf4c4e824a9ed15f1612a1c5cef
     ports:
       - "9205:9205"
     networks:

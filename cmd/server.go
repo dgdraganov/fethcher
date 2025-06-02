@@ -2,8 +2,13 @@ package cmd
 
 import (
 	"fethcher/internal/config"
+	"fethcher/internal/core"
+	"fethcher/internal/db"
 	"fethcher/internal/http/handler"
+	"fethcher/internal/http/payload"
 	"fethcher/internal/http/server"
+	"fethcher/internal/repository"
+	"fethcher/pkg/jwt"
 	"fethcher/pkg/log"
 	"net/http"
 	"os"
@@ -21,12 +26,43 @@ func Start() error {
 		return err
 	}
 
-	mux := http.NewServeMux()
+	// connect to the default DB as fethcher database does not exist yet
+	dbConn, err := db.NewFethDB("host=db user=postgres password=postgres dbname=postgres sslmode=disable")
+	if err != nil {
+		logger.Errorw("failed to connect to database", "error", err)
+		return err
+	}
+	// now 'fethcher' database exsists and we can connect to it
+	dbConn, err = db.NewFethDB(config.DBConnectionString)
+	if err != nil {
+		logger.Errorw("failed to connect to database", "error", err)
+		return err
+	}
 
-	limeHlr := handler.NewLimeHandler(logger)
+	// jwt service
+	jwtService := jwt.NewJWTService([]byte(config.JWTSecret))
+
+	// repository
+	repo := repository.NewFethRepo(dbConn)
+	err = repo.MigrateAndSeed("fetcher")
+	if err != nil {
+		logger.Errorw("failed to migrate and seed database", "error", err)
+		return err
+	}
+
+	// fethcher
+	fethcher := core.NewFethcher(logger, repo, jwtService)
+
+	// handler
+	limeHlr := handler.NewFethHandler(
+		logger,
+		payload.DecodeValidator{},
+		fethcher,
+	)
 
 	// register routes
-	mux.HandleFunc("GET /lime/eth", limeHlr.HandleGetTransactions)
+	mux := http.NewServeMux()
+	mux.HandleFunc("POST /lime/authenticate", limeHlr.HandleAuthenticate)
 
 	srv := server.NewHTTP(logger, mux, config.Port)
 	return run(srv)
