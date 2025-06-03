@@ -19,37 +19,45 @@ var (
 	GetMyTransactions  = "GET /lime/my"
 )
 
-type fethHandler struct {
-	logs             *zap.SugaredLogger
-	requestValidator RequestValidator
-	fethcher         TransactionService
+type FethHandler struct {
+	logs     *zap.SugaredLogger
+	fethcher TransactionService
 }
 
-func NewFethHandler(logger *zap.SugaredLogger, requestValidator RequestValidator, transactionService TransactionService) *fethHandler {
-	return &fethHandler{
-		logs:             logger,
-		requestValidator: requestValidator,
-		fethcher:         transactionService,
+func NewFethHandler(logger *zap.SugaredLogger, transactionService TransactionService) *FethHandler {
+	return &FethHandler{
+		logs:     logger,
+		fethcher: transactionService,
 	}
 }
 
-func (h *fethHandler) HandleAuthenticate(w http.ResponseWriter, r *http.Request) {
-	var payload payload.AuthRequest
-	if err := h.requestValidator.DecodeAndValidateJSONPayload(r, &payload); err != nil {
+func (h *FethHandler) HandleAuthenticate(w http.ResponseWriter, r *http.Request) {
+	var request payload.AuthRequest
+	if err := payload.DecodePayload(r, &request); err != nil {
 		h.respond(w, Response{
 			Message: "Could not authenticate you",
-			Error:   fmt.Errorf("invalid request payload: %w", err).Error(),
+			Error:   fmt.Errorf("decoding payload: %w", err).Error(),
 		}, http.StatusBadRequest)
 		return
 	}
 
-	token, err := h.fethcher.Authenticate(payload.ToMessage())
+	if err := request.Validate(); err != nil {
+		h.respond(w, Response{
+			Message: "Could not authenticate you",
+			Error:   fmt.Errorf("validating payload: %w", err).Error(),
+		}, http.StatusBadRequest)
+		return
+	}
+
+	token, err := h.fethcher.Authenticate(request.ToCoreAuthMessage())
 	if err != nil {
 		// ErrUserNotFound
 		resp := Response{
 			Message: "Login failed",
 		}
-		httpCode := http.StatusInternalServerError
+
+		var httpCode int
+
 		if errors.Is(err, core.ErrUserNotFound) {
 			resp.Error = err.Error()
 			httpCode = http.StatusUnauthorized
@@ -70,11 +78,11 @@ func (h *fethHandler) HandleAuthenticate(w http.ResponseWriter, r *http.Request)
 	h.respond(w, resp, http.StatusOK)
 }
 
-func (h *fethHandler) HandleGetTransactions(w http.ResponseWriter, r *http.Request) {
+func (h *FethHandler) HandleGetTransactions(w http.ResponseWriter, r *http.Request) {
 	// not implemented
 }
 
-func (h *fethHandler) respond(w http.ResponseWriter, resp any, code int) {
+func (h *FethHandler) respond(w http.ResponseWriter, resp any, code int) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 

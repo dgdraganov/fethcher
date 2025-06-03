@@ -5,9 +5,8 @@ import (
 	"fethcher/internal/core"
 	"fethcher/internal/db"
 	"fethcher/internal/http/handler"
-	"fethcher/internal/http/payload"
 	"fethcher/internal/http/server"
-	"fethcher/internal/repository"
+	"fethcher/internal/storage"
 	"fethcher/pkg/jwt"
 	"fethcher/pkg/log"
 	"net/http"
@@ -20,47 +19,41 @@ import (
 
 func Start() error {
 	logger := log.NewZapLogger("fethcher", zapcore.InfoLevel)
-	config, err := config.NewApp()
+	config, err := config.NewConfig()
 	if err != nil {
-		logger.Errorw("failed to get config", "error", err)
+		logger.Errorw("failed to create config", "error", err)
 		return err
 	}
 
-	// connect to the default DB as fethcher database does not exist yet
-	dbConn, err := db.NewFethDB("host=db user=postgres password=postgres dbname=postgres sslmode=disable")
+	// // connect to the default DB as fethcher database does not exist yet
+	// dbConn, err := db.NewGormDB("host=db user=postgres password=postgres dbname=postgres sslmode=disable")
+	// if err != nil {
+	// 	logger.Errorw("failed to connect to database", "error", err)
+	// 	return err
+	// }
+
+	dbConn, err := db.NewGormDB(config.DBConnectionString)
 	if err != nil {
 		logger.Errorw("failed to connect to database", "error", err)
 		return err
 	}
-	// now 'fethcher' database exsists and we can connect to it
-	dbConn, err = db.NewFethDB(config.DBConnectionString)
-	if err != nil {
-		logger.Errorw("failed to connect to database", "error", err)
-		return err
-	}
 
-	// jwt service
-	jwtService := jwt.NewJWTService([]byte(config.JWTSecret))
+	jwtService := jwt.NewService([]byte(config.JWTSecret))
 
-	// repository
-	repo := repository.NewFethRepo(dbConn)
-	err = repo.MigrateAndSeed("fetcher")
-	if err != nil {
+	repo := storage.NewUserRepository(dbConn)
+
+	if err := repo.MigrateAndSeed("fetcher"); err != nil {
 		logger.Errorw("failed to migrate and seed database", "error", err)
 		return err
 	}
 
-	// fethcher
 	fethcher := core.NewFethcher(logger, repo, jwtService)
 
-	// handler
 	limeHlr := handler.NewFethHandler(
 		logger,
-		payload.DecodeValidator{},
 		fethcher,
 	)
 
-	// register routes
 	mux := http.NewServeMux()
 	mux.HandleFunc("POST /lime/authenticate", limeHlr.HandleAuthenticate)
 
@@ -69,7 +62,6 @@ func Start() error {
 }
 
 func run(server *server.HTTPServer) error {
-	// expect a signal to gracefully shutdown the server
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 

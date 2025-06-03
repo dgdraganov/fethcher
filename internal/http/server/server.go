@@ -11,7 +11,6 @@ import (
 type HTTPServer struct {
 	server *http.Server
 	logs   *zap.SugaredLogger
-	mux    *http.ServeMux
 }
 
 func NewHTTP(logger *zap.SugaredLogger, mux *http.ServeMux, port string) *HTTPServer {

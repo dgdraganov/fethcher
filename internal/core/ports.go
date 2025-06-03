@@ -1,7 +1,7 @@
 package core
 
 import (
-	"fethcher/internal/repository"
+	"fethcher/internal/storage/models"
 	tokenIssuer "fethcher/pkg/jwt"
 
 	"github.com/golang-jwt/jwt"
@@ -11,7 +11,7 @@ import (
 
 //counterfeiter:generate -o fake -fake-name Repository . Repository
 type Repository interface {
-	GetUserFromDB(username, password string) (repository.User, error)
+	GetUserFromDB(username, password string) (*models.User, error)
 }
 
 //counterfeiter:generate -o fake -fake-name JWTIssuer . JWTIssuer

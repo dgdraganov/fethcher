@@ -17,17 +17,17 @@ type TokenInfo struct {
 	Expiration time.Duration
 }
 
-type JWTService struct {
+type Service struct {
 	secret []byte
 }
 
-func NewJWTService(jwtSecret []byte) *JWTService {
-	return &JWTService{
+func NewService(jwtSecret []byte) *Service {
+	return &Service{
 		secret: jwtSecret,
 	}
 }
 
-func (gen *JWTService) Generate(data TokenInfo) *jwt.Token {
+func (gen *Service) Generate(data TokenInfo) *jwt.Token {
 	claims := jwt.MapClaims{
 		"sub":      data.Subject,
 		"iat":      time.Now().Unix(),
@@ -39,7 +39,7 @@ func (gen *JWTService) Generate(data TokenInfo) *jwt.Token {
 	return token
 }
 
-func (gen *JWTService) Sign(token *jwt.Token) (string, error) {
+func (gen *Service) Sign(token *jwt.Token) (string, error) {
 	tokenStr, err := token.SignedString(gen.secret)
 	if err != nil {
 		return "", fmt.Errorf("get signing string: %w", err)
@@ -47,7 +47,7 @@ func (gen *JWTService) Sign(token *jwt.Token) (string, error) {
 	return tokenStr, nil
 }
 
-func (gen *JWTService) Validate(token string) (jwt.MapClaims, error) {
+func (gen *Service) Validate(token string) (jwt.MapClaims, error) {
 	jwtToken, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])

@@ -1,8 +1,9 @@
-package repository
+package storage
 
 import (
 	"errors"
 	"fethcher/internal/db"
+	"fethcher/internal/storage/models"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -10,24 +11,23 @@ import (
 
 var ErrUserNotFound error = errors.New("user not found")
 
-type FethRepo struct {
+type UserRepository struct {
 	db Database
 }
 
-func NewFethRepo(db Database) *FethRepo {
-	return &FethRepo{
+func NewUserRepository(db Database) *UserRepository {
+	return &UserRepository{
 		db: db,
 	}
 }
 
-func (r *FethRepo) MigrateAndSeed(dbName string) error {
-
-	err := r.db.MigrateTable(&Transaction{}, &User{})
+func (r *UserRepository) MigrateAndSeed(dbName string) error {
+	err := r.db.MigrateModels(&models.Transaction{}, &models.User{})
 	if err != nil {
 		return fmt.Errorf("migrate table(s): %w", err)
 	}
 
-	users := []User{
+	users := []models.User{
 		{
 			ID:           uuid.NewString(),
 			Username:     "alice",
@@ -49,7 +49,7 @@ func (r *FethRepo) MigrateAndSeed(dbName string) error {
 			PasswordHash: "$2a$10$53qBwnstmYjn4S5HbYoiYe5i.SyQxyZfBiPiCoB1241HRtpVYFMvG",
 		},
 	}
-	err = r.db.SeedDB(&users)
+	err = r.db.Seed(&users)
 	if err != nil {
 		return fmt.Errorf("seed database: %w", err)
 	}
@@ -57,16 +57,16 @@ func (r *FethRepo) MigrateAndSeed(dbName string) error {
 	return nil
 }
 
-func (r *FethRepo) GetUserFromDB(username, password string) (User, error) {
-	var user User
+func (r *UserRepository) GetUserFromDB(username, password string) (*models.User, error) {
+	var user models.User
 
 	err := r.db.GetBy("username", username, &user)
 	if err != nil {
 		if errors.Is(err, db.ErrNotFound) {
-			return User{}, ErrUserNotFound
+			return nil, ErrUserNotFound
 		}
-		return User{}, fmt.Errorf("get user by username: %w", err)
+		return nil, fmt.Errorf("get user by username: %w", err)
 	}
 
-	return user, nil
+	return &user, nil
 }

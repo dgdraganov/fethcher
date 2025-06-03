@@ -18,7 +18,7 @@ func (a AuthRequest) Validate() error {
 	)
 }
 
-func (a AuthRequest) ToMessage() core.AuthMessage {
+func (a AuthRequest) ToCoreAuthMessage() core.AuthMessage {
 	return core.AuthMessage{
 		Username: a.Username,
 		Password: a.Password,
