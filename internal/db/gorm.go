@@ -12,26 +12,26 @@ import (
 
 var ErrNotFound = errors.New("record not found")
 
-type FethDB struct {
+type GormDB struct {
 	db *gorm.DB
 }
 
-func NewFethDB(dsn string) (*FethDB, error) {
+func NewGormDB(dsn string) (*GormDB, error) {
 	var err error
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
-		return &FethDB{}, fmt.Errorf("failed to connect to database: %w", err)
+		return &GormDB{}, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	return &FethDB{
+	return &GormDB{
 		db: db,
 	}, nil
 }
 
-func (f *FethDB) MigrateTable(tbl ...any) error {
-	err := f.db.AutoMigrate(tbl...)
+func (f *GormDB) MigrateModels(models ...any) error {
+	err := f.db.AutoMigrate(models...)
 	if err != nil {
 		return fmt.Errorf("failed to migrate table: %w", err)
 	}
@@ -39,8 +39,7 @@ func (f *FethDB) MigrateTable(tbl ...any) error {
 	return nil
 }
 
-func (f *FethDB) SeedDB(records any) error {
-
+func (f *GormDB) Seed(records any) error {
 	v := reflect.ValueOf(records)
 	if v.Kind() != reflect.Ptr || v.Elem().Kind() != reflect.Slice {
 		return fmt.Errorf("records type must be pointer to a slice: %T", records)
@@ -68,36 +67,36 @@ func (f *FethDB) SeedDB(records any) error {
 	return nil
 }
 
-func (f *FethDB) CreateDB(dbName string) error {
-	if dbName == "" {
-		return errors.New("database name cannot be empty")
-	}
+// func (f *GormDB) Create(dbName string) error {
+// 	if dbName == "" {
+// 		return errors.New("database name cannot be empty")
+// 	}
 
-	sqlDB, err := f.db.DB()
-	if err != nil {
-		return fmt.Errorf("get sql db conn: %w", err)
-	}
+// 	sqlDB, err := f.db.DB()
+// 	if err != nil {
+// 		return fmt.Errorf("get sql db conn: %w", err)
+// 	}
 
-	var exists bool
-	query := `SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = $1)`
-	if err := sqlDB.QueryRow(query, dbName).Scan(&exists); err != nil {
-		return fmt.Errorf("check db exists: %w", err)
-	}
+// 	var exists bool
+// 	query := `SELECT EXISTS(SELECT 1 FROM pg_database WHERE datname = $1)`
+// 	if err := sqlDB.QueryRow(query, dbName).Scan(&exists); err != nil {
+// 		return fmt.Errorf("check db exists: %w", err)
+// 	}
 
-	if exists {
-		return nil
-	}
+// 	if exists {
+// 		return nil
+// 	}
 
-	// safe to use placeholder since dbName is controlled
-	_, err = sqlDB.Exec(fmt.Sprintf("CREATE DATABASE %s", dbName))
-	if err != nil {
-		return fmt.Errorf("reate database: %w", err)
-	}
+// 	// safe to use placeholder since dbName is controlled
+// 	_, err = sqlDB.Exec(fmt.Sprintf("CREATE DATABASE %s", dbName))
+// 	if err != nil {
+// 		return fmt.Errorf("reate database: %w", err)
+// 	}
 
-	return nil
-}
+// 	return nil
+// }
 
-func (f *FethDB) GetBy(column string, value any, entity any) error {
+func (f *GormDB) GetBy(column string, value any, entity any) error {
 	query := fmt.Sprintf("%s = ?", column)
 	err := f.db.Where(query, value).First(&entity).Error
 	if err != nil {

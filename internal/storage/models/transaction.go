@@ -1,4 +1,4 @@
-package repository
+package models
 
 type Transaction struct {
 	TransactionHash   string  `gorm:"size:66;uniqueIndex;not null"` // 0x + 64 hex chars
@@ -11,13 +11,4 @@ type Transaction struct {
 	LogsCount         int     `gorm:"not null;default:0"`
 	Input             string  `gorm:"type:text;not null"` // Hex encoded input data
 	Value             string  `gorm:"size:100;not null"`  // Value in wei (string to handle large numbers)
-}
-
-type User struct {
-	ID           string `gorm:"primaryKey;autoIncrement:false"`
-	Username     string `gorm:"type:varchar(255);uniqueIndex;not null"`
-	PasswordHash string `gorm:"not null"`
-}
-
-type UserTransaction struct {
 }

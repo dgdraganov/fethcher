@@ -2,7 +2,7 @@ package core
 
 import (
 	"errors"
-	"fethcher/internal/repository"
+	"fethcher/internal/storage"
 	tokenIssuer "fethcher/pkg/jwt"
 	"fmt"
 
@@ -31,12 +31,14 @@ func NewFethcher(logger *zap.SugaredLogger, repo Repository, jwt JWTIssuer) *Fet
 		jwtIssuer: jwt,
 	}
 }
+
 func (f *Fethcher) Authenticate(msg AuthMessage) (string, error) {
 	user, err := f.repo.GetUserFromDB(msg.Username, msg.Password)
 	if err != nil {
-		if errors.Is(err, repository.ErrUserNotFound) {
+		if errors.Is(err, storage.ErrUserNotFound) {
 			return "", ErrUserNotFound
 		}
+
 		return "", fmt.Errorf("get user from db: %w", err)
 	}
 
@@ -49,7 +51,9 @@ func (f *Fethcher) Authenticate(msg AuthMessage) (string, error) {
 		Subject:    user.ID,
 		Expiration: 24,
 	}
+
 	token := f.jwtIssuer.Generate(tokenInfo)
+
 	signed, err := f.jwtIssuer.Sign(token)
 	if err != nil {
 		return "", fmt.Errorf("signing token: %w", err)
