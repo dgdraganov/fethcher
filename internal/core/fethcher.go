@@ -138,7 +138,7 @@ func (f *Fethcher) SaveUserTransactionsHistory(ctx context.Context, token string
 
 	userId := claims["sub"].(string)
 
-	f.repo.SaveUserHistory(ctx, userId, transactionsHashes)
+	err = f.repo.SaveUserHistory(ctx, userId, transactionsHashes)
 	if err != nil {
 		return fmt.Errorf("save user history: %w", err)
 	}
