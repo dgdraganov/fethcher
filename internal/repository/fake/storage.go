@@ -2,17 +2,19 @@
 package fake
 
 import (
+	"context"
 	"fethcher/internal/repository"
 	"sync"
 )
 
 type Storage struct {
-	GetAllByStub        func(string, any, any) error
+	GetAllByStub        func(context.Context, string, any, any) error
 	getAllByMutex       sync.RWMutex
 	getAllByArgsForCall []struct {
-		arg1 string
-		arg2 any
+		arg1 context.Context
+		arg2 string
 		arg3 any
+		arg4 any
 	}
 	getAllByReturns struct {
 		result1 error
@@ -20,12 +22,13 @@ type Storage struct {
 	getAllByReturnsOnCall map[int]struct {
 		result1 error
 	}
-	GetOneByStub        func(string, any, any) error
+	GetOneByStub        func(context.Context, string, any, any) error
 	getOneByMutex       sync.RWMutex
 	getOneByArgsForCall []struct {
-		arg1 string
-		arg2 any
+		arg1 context.Context
+		arg2 string
 		arg3 any
+		arg4 any
 	}
 	getOneByReturns struct {
 		result1 error
@@ -44,10 +47,11 @@ type Storage struct {
 	migrateTableReturnsOnCall map[int]struct {
 		result1 error
 	}
-	SaveToTableStub        func(any) error
+	SaveToTableStub        func(context.Context, any) error
 	saveToTableMutex       sync.RWMutex
 	saveToTableArgsForCall []struct {
-		arg1 any
+		arg1 context.Context
+		arg2 any
 	}
 	saveToTableReturns struct {
 		result1 error
@@ -59,20 +63,21 @@ type Storage struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *Storage) GetAllBy(arg1 string, arg2 any, arg3 any) error {
+func (fake *Storage) GetAllBy(arg1 context.Context, arg2 string, arg3 any, arg4 any) error {
 	fake.getAllByMutex.Lock()
 	ret, specificReturn := fake.getAllByReturnsOnCall[len(fake.getAllByArgsForCall)]
 	fake.getAllByArgsForCall = append(fake.getAllByArgsForCall, struct {
-		arg1 string
-		arg2 any
+		arg1 context.Context
+		arg2 string
 		arg3 any
-	}{arg1, arg2, arg3})
+		arg4 any
+	}{arg1, arg2, arg3, arg4})
 	stub := fake.GetAllByStub
 	fakeReturns := fake.getAllByReturns
-	fake.recordInvocation("GetAllBy", []interface{}{arg1, arg2, arg3})
+	fake.recordInvocation("GetAllBy", []interface{}{arg1, arg2, arg3, arg4})
 	fake.getAllByMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3)
+		return stub(arg1, arg2, arg3, arg4)
 	}
 	if specificReturn {
 		return ret.result1
@@ -86,17 +91,17 @@ func (fake *Storage) GetAllByCallCount() int {
 	return len(fake.getAllByArgsForCall)
 }
 
-func (fake *Storage) GetAllByCalls(stub func(string, any, any) error) {
+func (fake *Storage) GetAllByCalls(stub func(context.Context, string, any, any) error) {
 	fake.getAllByMutex.Lock()
 	defer fake.getAllByMutex.Unlock()
 	fake.GetAllByStub = stub
 }
 
-func (fake *Storage) GetAllByArgsForCall(i int) (string, any, any) {
+func (fake *Storage) GetAllByArgsForCall(i int) (context.Context, string, any, any) {
 	fake.getAllByMutex.RLock()
 	defer fake.getAllByMutex.RUnlock()
 	argsForCall := fake.getAllByArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
 }
 
 func (fake *Storage) GetAllByReturns(result1 error) {
@@ -122,20 +127,21 @@ func (fake *Storage) GetAllByReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *Storage) GetOneBy(arg1 string, arg2 any, arg3 any) error {
+func (fake *Storage) GetOneBy(arg1 context.Context, arg2 string, arg3 any, arg4 any) error {
 	fake.getOneByMutex.Lock()
 	ret, specificReturn := fake.getOneByReturnsOnCall[len(fake.getOneByArgsForCall)]
 	fake.getOneByArgsForCall = append(fake.getOneByArgsForCall, struct {
-		arg1 string
-		arg2 any
+		arg1 context.Context
+		arg2 string
 		arg3 any
-	}{arg1, arg2, arg3})
+		arg4 any
+	}{arg1, arg2, arg3, arg4})
 	stub := fake.GetOneByStub
 	fakeReturns := fake.getOneByReturns
-	fake.recordInvocation("GetOneBy", []interface{}{arg1, arg2, arg3})
+	fake.recordInvocation("GetOneBy", []interface{}{arg1, arg2, arg3, arg4})
 	fake.getOneByMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3)
+		return stub(arg1, arg2, arg3, arg4)
 	}
 	if specificReturn {
 		return ret.result1
@@ -149,17 +155,17 @@ func (fake *Storage) GetOneByCallCount() int {
 	return len(fake.getOneByArgsForCall)
 }
 
-func (fake *Storage) GetOneByCalls(stub func(string, any, any) error) {
+func (fake *Storage) GetOneByCalls(stub func(context.Context, string, any, any) error) {
 	fake.getOneByMutex.Lock()
 	defer fake.getOneByMutex.Unlock()
 	fake.GetOneByStub = stub
 }
 
-func (fake *Storage) GetOneByArgsForCall(i int) (string, any, any) {
+func (fake *Storage) GetOneByArgsForCall(i int) (context.Context, string, any, any) {
 	fake.getOneByMutex.RLock()
 	defer fake.getOneByMutex.RUnlock()
 	argsForCall := fake.getOneByArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3, argsForCall.arg4
 }
 
 func (fake *Storage) GetOneByReturns(result1 error) {
@@ -246,18 +252,19 @@ func (fake *Storage) MigrateTableReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *Storage) SaveToTable(arg1 any) error {
+func (fake *Storage) SaveToTable(arg1 context.Context, arg2 any) error {
 	fake.saveToTableMutex.Lock()
 	ret, specificReturn := fake.saveToTableReturnsOnCall[len(fake.saveToTableArgsForCall)]
 	fake.saveToTableArgsForCall = append(fake.saveToTableArgsForCall, struct {
-		arg1 any
-	}{arg1})
+		arg1 context.Context
+		arg2 any
+	}{arg1, arg2})
 	stub := fake.SaveToTableStub
 	fakeReturns := fake.saveToTableReturns
-	fake.recordInvocation("SaveToTable", []interface{}{arg1})
+	fake.recordInvocation("SaveToTable", []interface{}{arg1, arg2})
 	fake.saveToTableMutex.Unlock()
 	if stub != nil {
-		return stub(arg1)
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
@@ -271,17 +278,17 @@ func (fake *Storage) SaveToTableCallCount() int {
 	return len(fake.saveToTableArgsForCall)
 }
 
-func (fake *Storage) SaveToTableCalls(stub func(any) error) {
+func (fake *Storage) SaveToTableCalls(stub func(context.Context, any) error) {
 	fake.saveToTableMutex.Lock()
 	defer fake.saveToTableMutex.Unlock()
 	fake.SaveToTableStub = stub
 }
 
-func (fake *Storage) SaveToTableArgsForCall(i int) any {
+func (fake *Storage) SaveToTableArgsForCall(i int) (context.Context, any) {
 	fake.saveToTableMutex.RLock()
 	defer fake.saveToTableMutex.RUnlock()
 	argsForCall := fake.saveToTableArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *Storage) SaveToTableReturns(result1 error) {

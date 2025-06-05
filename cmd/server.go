@@ -52,7 +52,11 @@ func Start() error {
 	}
 
 	// fethcher
-	fethcher := core.NewFethcher(logger, repo, jwtService, ethService)
+	fethcher := core.NewFethcher(
+		logger,
+		repo,
+		jwtService,
+		ethService)
 
 	// handler
 	limeHlr := handler.NewFethHandler(

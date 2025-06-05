@@ -15,7 +15,7 @@ type RequestValidator interface {
 
 //counterfeiter:generate -o fake -fake-name TransactionService . TransactionService
 type TransactionService interface {
-	Authenticate(msg core.AuthMessage) (string, error)
+	Authenticate(ctx context.Context, msg core.AuthMessage) (string, error)
 	GetTransactions(ctx context.Context, transactionsHashes []string) ([]core.TransactionRecord, error)
 	GetTransactionsRLP(ctx context.Context, rlphex string) ([]core.TransactionRecord, error)
 	SaveUserTransactionsHistory(ctx context.Context, token string, transactionsHashes []string) error

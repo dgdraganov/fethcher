@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"reflect"
@@ -39,7 +40,7 @@ func (f *PostgresDB) MigrateTable(tbl ...any) error {
 	return nil
 }
 
-func (f *PostgresDB) SaveToTable(records any) error {
+func (f *PostgresDB) SaveToTable(ctx context.Context, records any) error {
 
 	v := reflect.ValueOf(records)
 	if v.Kind() != reflect.Ptr || v.Elem().Kind() != reflect.Slice {
@@ -69,7 +70,7 @@ func (f *PostgresDB) SaveToTable(records any) error {
 	return nil
 }
 
-func (f *PostgresDB) CreateDB(dbName string) error {
+func (f *PostgresDB) CreateDB(ctx context.Context, dbName string) error {
 	if dbName == "" {
 		return errors.New("database name cannot be empty")
 	}
@@ -99,7 +100,7 @@ func (f *PostgresDB) CreateDB(dbName string) error {
 	return nil
 }
 
-func (f *PostgresDB) GetOneBy(column string, value any, entity any) error {
+func (f *PostgresDB) GetOneBy(ctx context.Context, column string, value any, entity any) error {
 	query := fmt.Sprintf("%s = ?", column)
 	err := f.db.Where(query, value).First(&entity).Error
 	if err != nil {
@@ -111,7 +112,7 @@ func (f *PostgresDB) GetOneBy(column string, value any, entity any) error {
 	return nil
 }
 
-func (f *PostgresDB) GetAllBy(column string, value any, entity any) error {
+func (f *PostgresDB) GetAllBy(ctx context.Context, column string, value any, entity any) error {
 	tx := f.db.Where(fmt.Sprintf("%s IN ?", column), value).Find(entity)
 	if tx.Error != nil {
 		return fmt.Errorf("getting records by %q: %w", column, tx.Error)

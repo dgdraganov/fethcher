@@ -9,10 +9,11 @@ import (
 )
 
 type TransactionService struct {
-	AuthenticateStub        func(core.AuthMessage) (string, error)
+	AuthenticateStub        func(context.Context, core.AuthMessage) (string, error)
 	authenticateMutex       sync.RWMutex
 	authenticateArgsForCall []struct {
-		arg1 core.AuthMessage
+		arg1 context.Context
+		arg2 core.AuthMessage
 	}
 	authenticateReturns struct {
 		result1 string
@@ -81,18 +82,19 @@ type TransactionService struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *TransactionService) Authenticate(arg1 core.AuthMessage) (string, error) {
+func (fake *TransactionService) Authenticate(arg1 context.Context, arg2 core.AuthMessage) (string, error) {
 	fake.authenticateMutex.Lock()
 	ret, specificReturn := fake.authenticateReturnsOnCall[len(fake.authenticateArgsForCall)]
 	fake.authenticateArgsForCall = append(fake.authenticateArgsForCall, struct {
-		arg1 core.AuthMessage
-	}{arg1})
+		arg1 context.Context
+		arg2 core.AuthMessage
+	}{arg1, arg2})
 	stub := fake.AuthenticateStub
 	fakeReturns := fake.authenticateReturns
-	fake.recordInvocation("Authenticate", []interface{}{arg1})
+	fake.recordInvocation("Authenticate", []interface{}{arg1, arg2})
 	fake.authenticateMutex.Unlock()
 	if stub != nil {
-		return stub(arg1)
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -106,17 +108,17 @@ func (fake *TransactionService) AuthenticateCallCount() int {
 	return len(fake.authenticateArgsForCall)
 }
 
-func (fake *TransactionService) AuthenticateCalls(stub func(core.AuthMessage) (string, error)) {
+func (fake *TransactionService) AuthenticateCalls(stub func(context.Context, core.AuthMessage) (string, error)) {
 	fake.authenticateMutex.Lock()
 	defer fake.authenticateMutex.Unlock()
 	fake.AuthenticateStub = stub
 }
 
-func (fake *TransactionService) AuthenticateArgsForCall(i int) core.AuthMessage {
+func (fake *TransactionService) AuthenticateArgsForCall(i int) (context.Context, core.AuthMessage) {
 	fake.authenticateMutex.RLock()
 	defer fake.authenticateMutex.RUnlock()
 	argsForCall := fake.authenticateArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *TransactionService) AuthenticateReturns(result1 string, result2 error) {

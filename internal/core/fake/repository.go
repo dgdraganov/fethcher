@@ -2,16 +2,18 @@
 package fake
 
 import (
+	"context"
 	"fethcher/internal/core"
 	"fethcher/internal/repository"
 	"sync"
 )
 
 type Repository struct {
-	GetTransactionsByHashStub        func([]string) ([]repository.Transaction, error)
+	GetTransactionsByHashStub        func(context.Context, []string) ([]repository.Transaction, error)
 	getTransactionsByHashMutex       sync.RWMutex
 	getTransactionsByHashArgsForCall []struct {
-		arg1 []string
+		arg1 context.Context
+		arg2 []string
 	}
 	getTransactionsByHashReturns struct {
 		result1 []repository.Transaction
@@ -21,11 +23,12 @@ type Repository struct {
 		result1 []repository.Transaction
 		result2 error
 	}
-	GetUserFromDBStub        func(string, string) (repository.User, error)
+	GetUserFromDBStub        func(context.Context, string, string) (repository.User, error)
 	getUserFromDBMutex       sync.RWMutex
 	getUserFromDBArgsForCall []struct {
-		arg1 string
+		arg1 context.Context
 		arg2 string
+		arg3 string
 	}
 	getUserFromDBReturns struct {
 		result1 repository.User
@@ -35,10 +38,11 @@ type Repository struct {
 		result1 repository.User
 		result2 error
 	}
-	GetUserHistoryStub        func(string) ([]string, error)
+	GetUserHistoryStub        func(context.Context, string) ([]string, error)
 	getUserHistoryMutex       sync.RWMutex
 	getUserHistoryArgsForCall []struct {
-		arg1 string
+		arg1 context.Context
+		arg2 string
 	}
 	getUserHistoryReturns struct {
 		result1 []string
@@ -48,10 +52,11 @@ type Repository struct {
 		result1 []string
 		result2 error
 	}
-	SaveTransactionsStub        func([]repository.Transaction) error
+	SaveTransactionsStub        func(context.Context, []repository.Transaction) error
 	saveTransactionsMutex       sync.RWMutex
 	saveTransactionsArgsForCall []struct {
-		arg1 []repository.Transaction
+		arg1 context.Context
+		arg2 []repository.Transaction
 	}
 	saveTransactionsReturns struct {
 		result1 error
@@ -59,11 +64,12 @@ type Repository struct {
 	saveTransactionsReturnsOnCall map[int]struct {
 		result1 error
 	}
-	SaveUserHistoryStub        func(string, []string) error
+	SaveUserHistoryStub        func(context.Context, string, []string) error
 	saveUserHistoryMutex       sync.RWMutex
 	saveUserHistoryArgsForCall []struct {
-		arg1 string
-		arg2 []string
+		arg1 context.Context
+		arg2 string
+		arg3 []string
 	}
 	saveUserHistoryReturns struct {
 		result1 error
@@ -75,23 +81,24 @@ type Repository struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *Repository) GetTransactionsByHash(arg1 []string) ([]repository.Transaction, error) {
-	var arg1Copy []string
-	if arg1 != nil {
-		arg1Copy = make([]string, len(arg1))
-		copy(arg1Copy, arg1)
+func (fake *Repository) GetTransactionsByHash(arg1 context.Context, arg2 []string) ([]repository.Transaction, error) {
+	var arg2Copy []string
+	if arg2 != nil {
+		arg2Copy = make([]string, len(arg2))
+		copy(arg2Copy, arg2)
 	}
 	fake.getTransactionsByHashMutex.Lock()
 	ret, specificReturn := fake.getTransactionsByHashReturnsOnCall[len(fake.getTransactionsByHashArgsForCall)]
 	fake.getTransactionsByHashArgsForCall = append(fake.getTransactionsByHashArgsForCall, struct {
-		arg1 []string
-	}{arg1Copy})
+		arg1 context.Context
+		arg2 []string
+	}{arg1, arg2Copy})
 	stub := fake.GetTransactionsByHashStub
 	fakeReturns := fake.getTransactionsByHashReturns
-	fake.recordInvocation("GetTransactionsByHash", []interface{}{arg1Copy})
+	fake.recordInvocation("GetTransactionsByHash", []interface{}{arg1, arg2Copy})
 	fake.getTransactionsByHashMutex.Unlock()
 	if stub != nil {
-		return stub(arg1)
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -105,17 +112,17 @@ func (fake *Repository) GetTransactionsByHashCallCount() int {
 	return len(fake.getTransactionsByHashArgsForCall)
 }
 
-func (fake *Repository) GetTransactionsByHashCalls(stub func([]string) ([]repository.Transaction, error)) {
+func (fake *Repository) GetTransactionsByHashCalls(stub func(context.Context, []string) ([]repository.Transaction, error)) {
 	fake.getTransactionsByHashMutex.Lock()
 	defer fake.getTransactionsByHashMutex.Unlock()
 	fake.GetTransactionsByHashStub = stub
 }
 
-func (fake *Repository) GetTransactionsByHashArgsForCall(i int) []string {
+func (fake *Repository) GetTransactionsByHashArgsForCall(i int) (context.Context, []string) {
 	fake.getTransactionsByHashMutex.RLock()
 	defer fake.getTransactionsByHashMutex.RUnlock()
 	argsForCall := fake.getTransactionsByHashArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *Repository) GetTransactionsByHashReturns(result1 []repository.Transaction, result2 error) {
@@ -144,19 +151,20 @@ func (fake *Repository) GetTransactionsByHashReturnsOnCall(i int, result1 []repo
 	}{result1, result2}
 }
 
-func (fake *Repository) GetUserFromDB(arg1 string, arg2 string) (repository.User, error) {
+func (fake *Repository) GetUserFromDB(arg1 context.Context, arg2 string, arg3 string) (repository.User, error) {
 	fake.getUserFromDBMutex.Lock()
 	ret, specificReturn := fake.getUserFromDBReturnsOnCall[len(fake.getUserFromDBArgsForCall)]
 	fake.getUserFromDBArgsForCall = append(fake.getUserFromDBArgsForCall, struct {
-		arg1 string
+		arg1 context.Context
 		arg2 string
-	}{arg1, arg2})
+		arg3 string
+	}{arg1, arg2, arg3})
 	stub := fake.GetUserFromDBStub
 	fakeReturns := fake.getUserFromDBReturns
-	fake.recordInvocation("GetUserFromDB", []interface{}{arg1, arg2})
+	fake.recordInvocation("GetUserFromDB", []interface{}{arg1, arg2, arg3})
 	fake.getUserFromDBMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2)
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -170,17 +178,17 @@ func (fake *Repository) GetUserFromDBCallCount() int {
 	return len(fake.getUserFromDBArgsForCall)
 }
 
-func (fake *Repository) GetUserFromDBCalls(stub func(string, string) (repository.User, error)) {
+func (fake *Repository) GetUserFromDBCalls(stub func(context.Context, string, string) (repository.User, error)) {
 	fake.getUserFromDBMutex.Lock()
 	defer fake.getUserFromDBMutex.Unlock()
 	fake.GetUserFromDBStub = stub
 }
 
-func (fake *Repository) GetUserFromDBArgsForCall(i int) (string, string) {
+func (fake *Repository) GetUserFromDBArgsForCall(i int) (context.Context, string, string) {
 	fake.getUserFromDBMutex.RLock()
 	defer fake.getUserFromDBMutex.RUnlock()
 	argsForCall := fake.getUserFromDBArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *Repository) GetUserFromDBReturns(result1 repository.User, result2 error) {
@@ -209,18 +217,19 @@ func (fake *Repository) GetUserFromDBReturnsOnCall(i int, result1 repository.Use
 	}{result1, result2}
 }
 
-func (fake *Repository) GetUserHistory(arg1 string) ([]string, error) {
+func (fake *Repository) GetUserHistory(arg1 context.Context, arg2 string) ([]string, error) {
 	fake.getUserHistoryMutex.Lock()
 	ret, specificReturn := fake.getUserHistoryReturnsOnCall[len(fake.getUserHistoryArgsForCall)]
 	fake.getUserHistoryArgsForCall = append(fake.getUserHistoryArgsForCall, struct {
-		arg1 string
-	}{arg1})
+		arg1 context.Context
+		arg2 string
+	}{arg1, arg2})
 	stub := fake.GetUserHistoryStub
 	fakeReturns := fake.getUserHistoryReturns
-	fake.recordInvocation("GetUserHistory", []interface{}{arg1})
+	fake.recordInvocation("GetUserHistory", []interface{}{arg1, arg2})
 	fake.getUserHistoryMutex.Unlock()
 	if stub != nil {
-		return stub(arg1)
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -234,17 +243,17 @@ func (fake *Repository) GetUserHistoryCallCount() int {
 	return len(fake.getUserHistoryArgsForCall)
 }
 
-func (fake *Repository) GetUserHistoryCalls(stub func(string) ([]string, error)) {
+func (fake *Repository) GetUserHistoryCalls(stub func(context.Context, string) ([]string, error)) {
 	fake.getUserHistoryMutex.Lock()
 	defer fake.getUserHistoryMutex.Unlock()
 	fake.GetUserHistoryStub = stub
 }
 
-func (fake *Repository) GetUserHistoryArgsForCall(i int) string {
+func (fake *Repository) GetUserHistoryArgsForCall(i int) (context.Context, string) {
 	fake.getUserHistoryMutex.RLock()
 	defer fake.getUserHistoryMutex.RUnlock()
 	argsForCall := fake.getUserHistoryArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *Repository) GetUserHistoryReturns(result1 []string, result2 error) {
@@ -273,23 +282,24 @@ func (fake *Repository) GetUserHistoryReturnsOnCall(i int, result1 []string, res
 	}{result1, result2}
 }
 
-func (fake *Repository) SaveTransactions(arg1 []repository.Transaction) error {
-	var arg1Copy []repository.Transaction
-	if arg1 != nil {
-		arg1Copy = make([]repository.Transaction, len(arg1))
-		copy(arg1Copy, arg1)
+func (fake *Repository) SaveTransactions(arg1 context.Context, arg2 []repository.Transaction) error {
+	var arg2Copy []repository.Transaction
+	if arg2 != nil {
+		arg2Copy = make([]repository.Transaction, len(arg2))
+		copy(arg2Copy, arg2)
 	}
 	fake.saveTransactionsMutex.Lock()
 	ret, specificReturn := fake.saveTransactionsReturnsOnCall[len(fake.saveTransactionsArgsForCall)]
 	fake.saveTransactionsArgsForCall = append(fake.saveTransactionsArgsForCall, struct {
-		arg1 []repository.Transaction
-	}{arg1Copy})
+		arg1 context.Context
+		arg2 []repository.Transaction
+	}{arg1, arg2Copy})
 	stub := fake.SaveTransactionsStub
 	fakeReturns := fake.saveTransactionsReturns
-	fake.recordInvocation("SaveTransactions", []interface{}{arg1Copy})
+	fake.recordInvocation("SaveTransactions", []interface{}{arg1, arg2Copy})
 	fake.saveTransactionsMutex.Unlock()
 	if stub != nil {
-		return stub(arg1)
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1
@@ -303,17 +313,17 @@ func (fake *Repository) SaveTransactionsCallCount() int {
 	return len(fake.saveTransactionsArgsForCall)
 }
 
-func (fake *Repository) SaveTransactionsCalls(stub func([]repository.Transaction) error) {
+func (fake *Repository) SaveTransactionsCalls(stub func(context.Context, []repository.Transaction) error) {
 	fake.saveTransactionsMutex.Lock()
 	defer fake.saveTransactionsMutex.Unlock()
 	fake.SaveTransactionsStub = stub
 }
 
-func (fake *Repository) SaveTransactionsArgsForCall(i int) []repository.Transaction {
+func (fake *Repository) SaveTransactionsArgsForCall(i int) (context.Context, []repository.Transaction) {
 	fake.saveTransactionsMutex.RLock()
 	defer fake.saveTransactionsMutex.RUnlock()
 	argsForCall := fake.saveTransactionsArgsForCall[i]
-	return argsForCall.arg1
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *Repository) SaveTransactionsReturns(result1 error) {
@@ -339,24 +349,25 @@ func (fake *Repository) SaveTransactionsReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *Repository) SaveUserHistory(arg1 string, arg2 []string) error {
-	var arg2Copy []string
-	if arg2 != nil {
-		arg2Copy = make([]string, len(arg2))
-		copy(arg2Copy, arg2)
+func (fake *Repository) SaveUserHistory(arg1 context.Context, arg2 string, arg3 []string) error {
+	var arg3Copy []string
+	if arg3 != nil {
+		arg3Copy = make([]string, len(arg3))
+		copy(arg3Copy, arg3)
 	}
 	fake.saveUserHistoryMutex.Lock()
 	ret, specificReturn := fake.saveUserHistoryReturnsOnCall[len(fake.saveUserHistoryArgsForCall)]
 	fake.saveUserHistoryArgsForCall = append(fake.saveUserHistoryArgsForCall, struct {
-		arg1 string
-		arg2 []string
-	}{arg1, arg2Copy})
+		arg1 context.Context
+		arg2 string
+		arg3 []string
+	}{arg1, arg2, arg3Copy})
 	stub := fake.SaveUserHistoryStub
 	fakeReturns := fake.saveUserHistoryReturns
-	fake.recordInvocation("SaveUserHistory", []interface{}{arg1, arg2Copy})
+	fake.recordInvocation("SaveUserHistory", []interface{}{arg1, arg2, arg3Copy})
 	fake.saveUserHistoryMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2)
+		return stub(arg1, arg2, arg3)
 	}
 	if specificReturn {
 		return ret.result1
@@ -370,17 +381,17 @@ func (fake *Repository) SaveUserHistoryCallCount() int {
 	return len(fake.saveUserHistoryArgsForCall)
 }
 
-func (fake *Repository) SaveUserHistoryCalls(stub func(string, []string) error) {
+func (fake *Repository) SaveUserHistoryCalls(stub func(context.Context, string, []string) error) {
 	fake.saveUserHistoryMutex.Lock()
 	defer fake.saveUserHistoryMutex.Unlock()
 	fake.SaveUserHistoryStub = stub
 }
 
-func (fake *Repository) SaveUserHistoryArgsForCall(i int) (string, []string) {
+func (fake *Repository) SaveUserHistoryArgsForCall(i int) (context.Context, string, []string) {
 	fake.saveUserHistoryMutex.RLock()
 	defer fake.saveUserHistoryMutex.RUnlock()
 	argsForCall := fake.saveUserHistoryArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
+	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
 }
 
 func (fake *Repository) SaveUserHistoryReturns(result1 error) {

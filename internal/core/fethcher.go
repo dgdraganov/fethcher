@@ -37,8 +37,8 @@ func NewFethcher(logger *zap.SugaredLogger, repo Repository, jwt JWTIssuer, ethe
 	}
 }
 
-func (f *Fethcher) Authenticate(msg AuthMessage) (string, error) {
-	user, err := f.repo.GetUserFromDB(msg.Username, msg.Password)
+func (f *Fethcher) Authenticate(ctx context.Context, msg AuthMessage) (string, error) {
+	user, err := f.repo.GetUserFromDB(ctx, msg.Username, msg.Password)
 	if err != nil {
 		if errors.Is(err, repository.ErrUserNotFound) {
 			return "", ErrUserNotFound
@@ -138,7 +138,7 @@ func (f *Fethcher) SaveUserTransactionsHistory(ctx context.Context, token string
 
 	userId := claims["sub"].(string)
 
-	f.repo.SaveUserHistory(userId, transactionsHashes)
+	f.repo.SaveUserHistory(ctx, userId, transactionsHashes)
 	if err != nil {
 		return fmt.Errorf("save user history: %w", err)
 	}
@@ -157,7 +157,7 @@ func (f *Fethcher) GetUserTransactionsHistory(ctx context.Context, token string)
 
 	f.logs.Infow("getting user transactions history", "userId", userId)
 
-	transactionsHashes, err := f.repo.GetUserHistory(userId)
+	transactionsHashes, err := f.repo.GetUserHistory(ctx, userId)
 	if err != nil {
 		return nil, fmt.Errorf("get user history: %w", err)
 	}
@@ -188,7 +188,7 @@ func (f *Fethcher) saveTransactionsToDB(ctx context.Context, transactionRecords 
 			Value:             tx.Value,
 		})
 	}
-	err := f.repo.SaveTransactions(transactions)
+	err := f.repo.SaveTransactions(ctx, transactions)
 	if err != nil {
 		return fmt.Errorf("repo save transactions: %w", err)
 	}
@@ -197,7 +197,7 @@ func (f *Fethcher) saveTransactionsToDB(ctx context.Context, transactionRecords 
 
 func (f *Fethcher) getTransactionsFromDB(ctx context.Context, transactionsHashes []string) ([]TransactionRecord, error) {
 
-	dbTransactions, err := f.repo.GetTransactionsByHash(transactionsHashes)
+	dbTransactions, err := f.repo.GetTransactionsByHash(ctx, transactionsHashes)
 	if err != nil {
 		return nil, fmt.Errorf("get transactions by hash: %w", err)
 	}

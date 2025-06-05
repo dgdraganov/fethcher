@@ -13,11 +13,11 @@ import (
 
 //counterfeiter:generate -o fake -fake-name Repository . Repository
 type Repository interface {
-	GetUserFromDB(username, password string) (repository.User, error)
-	GetTransactionsByHash(txHashes []string) ([]repository.Transaction, error)
-	SaveTransactions(transactions []repository.Transaction) error
-	GetUserHistory(userID string) ([]string, error)
-	SaveUserHistory(userID string, transactions []string) error
+	GetUserFromDB(ctx context.Context, username, password string) (repository.User, error)
+	GetTransactionsByHash(ctx context.Context, txHashes []string) ([]repository.Transaction, error)
+	SaveTransactions(ctx context.Context, transactions []repository.Transaction) error
+	GetUserHistory(ctx context.Context, userID string) ([]string, error)
+	SaveUserHistory(ctx context.Context, userID string, transactions []string) error
 }
 
 //counterfeiter:generate -o fake -fake-name JWTIssuer . JWTIssuer

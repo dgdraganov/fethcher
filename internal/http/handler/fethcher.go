@@ -46,7 +46,7 @@ func (h *fethHandler) HandleAuthenticate(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	token, err := h.fethcher.Authenticate(payload.ToMessage())
+	token, err := h.fethcher.Authenticate(r.Context(), payload.ToMessage())
 	if err != nil {
 		resp := Response{
 			Message: "Login failed",
