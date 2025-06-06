@@ -85,7 +85,6 @@ func (h *fethHandler) HandleGetTransactions(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	// Get all values for the "transactionHashes" key
 	transactionHashes := values["transactionHashes"]
 
 	h.logs.Infow("transactions request received", "num_of_transactions", len(transactionHashes), "handler", GetTransactions)
@@ -108,12 +107,14 @@ func (h *fethHandler) HandleGetTransactions(w http.ResponseWriter, r *http.Reque
 	// save to user history
 	authToken := r.Header.Get("AUTH_TOKEN")
 	if authToken != "" {
-		err = h.fethcher.SaveUserTransactionsHistory(r.Context(), authToken, transactionHashes)
-		if err != nil {
-			h.logs.Errorw("failed to save user history", "error", err, "handler", GetTransactions)
-		} else {
-			h.logs.Infow("user history saved successfully", "num_of_transactions", len(transactionHashes), "handler", GetTransactions)
-		}
+		go func() {
+			err = h.fethcher.SaveUserTransactionsHistory(r.Context(), authToken, transactionHashes)
+			if err != nil {
+				h.logs.Errorw("failed to save user history", "error", err, "handler", GetTransactions)
+			} else {
+				h.logs.Infow("user history saved successfully", "num_of_transactions", len(transactionHashes), "handler", GetTransactions)
+			}
+		}()
 	}
 
 	resp := map[string][]core.TransactionRecord{

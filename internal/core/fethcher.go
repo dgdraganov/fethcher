@@ -104,10 +104,12 @@ func (f *Fethcher) GetTransactions(ctx context.Context, transactionsHashes []str
 
 	f.logs.Infow("caching transactions to DB", "count", len(records))
 
-	err = f.saveTransactionsToDB(ctx, records)
-	if err != nil {
-		return records, fmt.Errorf("save transactions to db: %w", err)
-	}
+	go func() {
+		err = f.saveTransactionsToDB(ctx, records)
+		if err != nil {
+			f.logs.Errorw("failed to save transactions to DB", "error", err, "count", len(records))
+		}
+	}()
 
 	return records, nil
 }
