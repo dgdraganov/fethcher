@@ -8,22 +8,16 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/ethclient"
 )
 
 type EthService struct {
-	client *ethclient.Client
+	client EthClient
 }
 
-func NewEthService() (*EthService, error) {
-	client, err := ethclient.Dial("https://mainnet.infura.io/v3/2a99b1970a934959abf51e0b7df0fd62")
-	if err != nil {
-		return nil, fmt.Errorf("connecting to Ethereum client: %w", err)
-	}
-
+func NewEthService(ethClient EthClient) *EthService {
 	return &EthService{
-		client: client,
-	}, nil
+		client: ethClient,
+	}
 }
 
 func (s *EthService) FetchTransactions(ctx context.Context, hashes []string) ([]*Transaction, error) {
@@ -62,17 +56,17 @@ func (s *EthService) FetchTransactions(ctx context.Context, hashes []string) ([]
 }
 
 func (s *EthService) getTransactionByHash(ctx context.Context, hash common.Hash) *TxResult {
-	tx, _, err := s.client.TransactionByHash(context.Background(), hash)
+	tx, _, err := s.client.TransactionByHash(ctx, hash)
 	if err != nil {
 		return &TxResult{nil, err}
 	}
 
-	receipt, err := s.client.TransactionReceipt(context.Background(), hash)
+	receipt, err := s.client.TransactionReceipt(ctx, hash)
 	if err != nil {
 		return &TxResult{nil, err}
 	}
 
-	chainID, err := s.client.NetworkID(context.Background())
+	chainID, err := s.client.NetworkID(ctx)
 	if err != nil {
 		return &TxResult{nil, err}
 	}

@@ -24,6 +24,7 @@ var _ = Describe("TransactionRepository", func() {
 		fakeStorage = new(fake.Storage)
 		repo = repository.NewTransactionRepository(fakeStorage)
 		fakeErr = errors.New("fake error")
+		ctx = context.Background()
 	})
 
 	Describe("MigrateAndSeed", func() {

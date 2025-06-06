@@ -16,6 +16,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/ethereum/go-ethereum/ethclient"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -45,11 +46,14 @@ func Start() error {
 		return err
 	}
 
-	ethService, err := ethereum.NewEthService()
+	// infura client token should be set in environment variable INFURA_TOKEN
+	client, err := ethclient.Dial("https://mainnet.infura.io/v3/2a99b1970a934959abf51e0b7df0fd62")
 	if err != nil {
-		logger.Errorw("failed to create ethereum service", "error", err)
+		logger.Errorw("infura connection failed", "error", err)
 		return err
 	}
+
+	ethService := ethereum.NewEthService(client)
 
 	// fethcher
 	fethcher := core.NewFethcher(
