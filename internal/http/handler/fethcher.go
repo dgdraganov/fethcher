@@ -22,21 +22,21 @@ var (
 	GetMyTransactions  = "GET /lime/my"
 )
 
-type fethHandler struct {
+type FethHandler struct {
 	logs             *zap.SugaredLogger
 	requestValidator RequestValidator
 	fethcher         TransactionService
 }
 
-func NewFethHandler(logger *zap.SugaredLogger, requestValidator RequestValidator, transactionService TransactionService) *fethHandler {
-	return &fethHandler{
+func NewFethHandler(logger *zap.SugaredLogger, requestValidator RequestValidator, transactionService TransactionService) *FethHandler {
+	return &FethHandler{
 		logs:             logger,
 		requestValidator: requestValidator,
 		fethcher:         transactionService,
 	}
 }
 
-func (h *fethHandler) HandleAuthenticate(w http.ResponseWriter, r *http.Request) {
+func (h *FethHandler) HandleAuthenticate(w http.ResponseWriter, r *http.Request) {
 	requestId := ""
 	reqIdCtx := r.Context().Value(middleware.RequestIDKey)
 	if reqIdCtx != nil {
@@ -65,8 +65,8 @@ func (h *fethHandler) HandleAuthenticate(w http.ResponseWriter, r *http.Request)
 		}
 		httpCode := http.StatusInternalServerError
 		if errors.Is(err, core.ErrUserNotFound) {
-			resp.Error = err.Error()
 			httpCode = http.StatusUnauthorized
+			resp.Error = err.Error()
 		} else if errors.Is(err, core.ErrIncorrectPassword) {
 			httpCode = http.StatusUnauthorized
 			resp.Error = err.Error()
@@ -89,7 +89,7 @@ func (h *fethHandler) HandleAuthenticate(w http.ResponseWriter, r *http.Request)
 	h.respond(w, resp, http.StatusOK, requestId)
 }
 
-func (h *fethHandler) HandleGetTransactions(w http.ResponseWriter, r *http.Request) {
+func (h *FethHandler) HandleGetTransactions(w http.ResponseWriter, r *http.Request) {
 	requestId := ""
 	reqIdCtx := r.Context().Value(middleware.RequestIDKey)
 	if reqIdCtx != nil {
@@ -177,7 +177,7 @@ func (h *fethHandler) HandleGetTransactions(w http.ResponseWriter, r *http.Reque
 
 	h.respond(w, resp, http.StatusOK, requestId)
 }
-func (h *fethHandler) HandleGetTransactionsRLP(w http.ResponseWriter, r *http.Request) {
+func (h *FethHandler) HandleGetTransactionsRLP(w http.ResponseWriter, r *http.Request) {
 	requestId := ""
 	reqIdCtx := r.Context().Value(middleware.RequestIDKey)
 	if reqIdCtx != nil {
@@ -200,11 +200,6 @@ func (h *fethHandler) HandleGetTransactionsRLP(w http.ResponseWriter, r *http.Re
 			"request_id", requestId)
 		return
 	}
-
-	h.logs.Infow("transactions RLP request received",
-		"rlpHash", rlphex,
-		"handler", GetTransactionsRLP,
-		"request_id", requestId)
 
 	transactionHashes, err := h.fethcher.ParseRLP(rlphex)
 	if err != nil {
@@ -286,7 +281,7 @@ func (h *fethHandler) HandleGetTransactionsRLP(w http.ResponseWriter, r *http.Re
 	h.respond(w, resp, http.StatusOK, requestId)
 }
 
-func (h *fethHandler) HandleGetMyTransactions(w http.ResponseWriter, r *http.Request) {
+func (h *FethHandler) HandleGetMyTransactions(w http.ResponseWriter, r *http.Request) {
 	requestId := ""
 
 	reqIdCtx := r.Context().Value(middleware.RequestIDKey)
@@ -325,7 +320,7 @@ func (h *fethHandler) HandleGetMyTransactions(w http.ResponseWriter, r *http.Req
 	h.respond(w, resp, http.StatusOK, requestId)
 }
 
-func (h *fethHandler) HandleGetAllTransactions(w http.ResponseWriter, r *http.Request) {
+func (h *FethHandler) HandleGetAllTransactions(w http.ResponseWriter, r *http.Request) {
 	requestId := ""
 	reqIdCtx := r.Context().Value(middleware.RequestIDKey)
 	if reqIdCtx != nil {
@@ -359,7 +354,7 @@ func (h *fethHandler) HandleGetAllTransactions(w http.ResponseWriter, r *http.Re
 	h.respond(w, resp, http.StatusOK, requestId)
 }
 
-func (h *fethHandler) respond(w http.ResponseWriter, resp any, code int, requestId string) {
+func (h *FethHandler) respond(w http.ResponseWriter, resp any, code int, requestId string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 

@@ -223,51 +223,46 @@ var _ = Describe("Fethcher", func() {
 		})
 	})
 
-	Describe("GetTransactionsRLP", func() {
-		It("fails", func() {
-			Fail("not implemented")
+	Describe("ParseRLP", func() {
+		var (
+			transactions []string
+			err          error
+			rlphex       string
+			parsedSlice  []string
+		)
+
+		BeforeEach(func() {
+			rlphex = "f90110b842307866633262336236646233386135316462336239636239356465323962373139646538646562393936333036323665346234623939646630353666666237663265b842307834383630336637616466663766626663326131306232326136373130333331656536386632653464316364373361353834643537633838323164663739333536b842307863626339323065376262383963626362353430613436396131363232366266313035373832353238336162386561633366343564303038313165656638613634b842307836643630346666633634346132383266636138636238653737386531653366383234356438626431643439333236653330313661336338373862613063626264"
+			parsedSlice = []string{
+				"0x307866633262336236646233386135316462336239636239356465323962373139646538646562393936333036323665346234623939646630353666666237663265",
+				"0x307834383630336637616466663766626663326131306232326136373130333331656536386632653464316364373361353834643537633838323164663739333536",
+				"0x307863626339323065376262383963626362353430613436396131363232366266313035373832353238336162386561633366343564303038313165656638613634",
+				"0x307836643630346666633634346132383266636138636238653737386531653366383234356438626431643439333236653330313661336338373862613063626264",
+			}
+		})
+
+		JustBeforeEach(func() {
+			transactions, err = fetcher.ParseRLP(rlphex)
+		})
+
+		When("RLP is valid", func() {
+			It("returns the transaction hashes", func() {
+				Expect(err).NotTo(HaveOccurred())
+				Expect(transactions).To(Equal(parsedSlice))
+			})
+		})
+
+		When("RLP is NOT valid", func() {
+			BeforeEach(func() {
+				rlphex = "f90110b842307866633262336236646233386135"
+			})
+
+			It("returns an error", func() {
+				Expect(err).To(HaveOccurred())
+				Expect(transactions).To(BeNil())
+			})
 		})
 	})
-
-	// Describe("GetTransactionsRLP", func() {
-	// 	var (
-	// 		rlpHex    string
-	// 		txRecords []core.TransactionRecord
-	// 		err       error
-	// 	)
-
-	// 	BeforeEach(func() {
-	// 		rlpHex = "c88330783183307832" // RLP + Hex encoded ["0x1", "0x2"]
-	// 	})
-
-	// 	JustBeforeEach(func() {
-	// 		txRecords, err = fetcher.GetTransactionsRLP(ctx, rlpHex)
-	// 	})
-
-	// 	When("RLP is valid", func() {
-	// 		BeforeEach(func() {
-	// 			fakeRepo.GetTransactionsByHashReturns([]repository.Transaction{
-	// 				{TransactionHash: "0x1"},
-	// 				{TransactionHash: "0x2"},
-	// 			}, nil)
-	// 		})
-
-	// 		It("should return transactions", func() {
-	// 			Expect(err).NotTo(HaveOccurred())
-	// 			Expect(txRecords).To(HaveLen(2))
-	// 		})
-	// 	})
-
-	// 	When("RLP is invalid", func() {
-	// 		BeforeEach(func() {
-	// 			rlpHex = "invalid"
-	// 		})
-
-	// 		It("should return parse error", func() {
-	// 			Expect(err).To(HaveOccurred())
-	// 		})
-	// 	})
-	// })
 
 	Describe("SaveUserTransactionsHistory", func() {
 		var (

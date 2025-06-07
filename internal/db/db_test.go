@@ -151,7 +151,7 @@ var _ = Describe("Database", func() {
 
 		When("an error occurs during query", func() {
 			BeforeEach(func() {
-				mock.ExpectQuery(`SELECT \* FROM "tests" WHERE username IN \$1.*`).
+				mock.ExpectQuery(`SELECT \* FROM "tests" WHERE username.*`).
 					WithArgs("Invalid").
 					WillReturnError(sql.ErrConnDone)
 			})
