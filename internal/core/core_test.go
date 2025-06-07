@@ -224,44 +224,50 @@ var _ = Describe("Fethcher", func() {
 	})
 
 	Describe("GetTransactionsRLP", func() {
-		var (
-			rlpHex    string
-			txRecords []core.TransactionRecord
-			err       error
-		)
-
-		BeforeEach(func() {
-			rlpHex = "c88330783183307832" // RLP + Hex encoded ["0x1", "0x2"]
-		})
-
-		JustBeforeEach(func() {
-			txRecords, err = fetcher.GetTransactionsRLP(ctx, rlpHex)
-		})
-
-		When("RLP is valid", func() {
-			BeforeEach(func() {
-				fakeRepo.GetTransactionsByHashReturns([]repository.Transaction{
-					{TransactionHash: "0x1"},
-					{TransactionHash: "0x2"},
-				}, nil)
-			})
-
-			It("should return transactions", func() {
-				Expect(err).NotTo(HaveOccurred())
-				Expect(txRecords).To(HaveLen(2))
-			})
-		})
-
-		When("RLP is invalid", func() {
-			BeforeEach(func() {
-				rlpHex = "invalid"
-			})
-
-			It("should return parse error", func() {
-				Expect(err).To(HaveOccurred())
-			})
+		It("fails", func() {
+			Fail("not implemented")
 		})
 	})
+
+	// Describe("GetTransactionsRLP", func() {
+	// 	var (
+	// 		rlpHex    string
+	// 		txRecords []core.TransactionRecord
+	// 		err       error
+	// 	)
+
+	// 	BeforeEach(func() {
+	// 		rlpHex = "c88330783183307832" // RLP + Hex encoded ["0x1", "0x2"]
+	// 	})
+
+	// 	JustBeforeEach(func() {
+	// 		txRecords, err = fetcher.GetTransactionsRLP(ctx, rlpHex)
+	// 	})
+
+	// 	When("RLP is valid", func() {
+	// 		BeforeEach(func() {
+	// 			fakeRepo.GetTransactionsByHashReturns([]repository.Transaction{
+	// 				{TransactionHash: "0x1"},
+	// 				{TransactionHash: "0x2"},
+	// 			}, nil)
+	// 		})
+
+	// 		It("should return transactions", func() {
+	// 			Expect(err).NotTo(HaveOccurred())
+	// 			Expect(txRecords).To(HaveLen(2))
+	// 		})
+	// 	})
+
+	// 	When("RLP is invalid", func() {
+	// 		BeforeEach(func() {
+	// 			rlpHex = "invalid"
+	// 		})
+
+	// 		It("should return parse error", func() {
+	// 			Expect(err).To(HaveOccurred())
+	// 		})
+	// 	})
+	// })
 
 	Describe("SaveUserTransactionsHistory", func() {
 		var (

@@ -9,6 +9,19 @@ import (
 )
 
 type Repository struct {
+	GetAllTransactionsStub        func(context.Context) ([]repository.Transaction, error)
+	getAllTransactionsMutex       sync.RWMutex
+	getAllTransactionsArgsForCall []struct {
+		arg1 context.Context
+	}
+	getAllTransactionsReturns struct {
+		result1 []repository.Transaction
+		result2 error
+	}
+	getAllTransactionsReturnsOnCall map[int]struct {
+		result1 []repository.Transaction
+		result2 error
+	}
 	GetTransactionsByHashStub        func(context.Context, []string) ([]repository.Transaction, error)
 	getTransactionsByHashMutex       sync.RWMutex
 	getTransactionsByHashArgsForCall []struct {
@@ -79,6 +92,70 @@ type Repository struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *Repository) GetAllTransactions(arg1 context.Context) ([]repository.Transaction, error) {
+	fake.getAllTransactionsMutex.Lock()
+	ret, specificReturn := fake.getAllTransactionsReturnsOnCall[len(fake.getAllTransactionsArgsForCall)]
+	fake.getAllTransactionsArgsForCall = append(fake.getAllTransactionsArgsForCall, struct {
+		arg1 context.Context
+	}{arg1})
+	stub := fake.GetAllTransactionsStub
+	fakeReturns := fake.getAllTransactionsReturns
+	fake.recordInvocation("GetAllTransactions", []interface{}{arg1})
+	fake.getAllTransactionsMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *Repository) GetAllTransactionsCallCount() int {
+	fake.getAllTransactionsMutex.RLock()
+	defer fake.getAllTransactionsMutex.RUnlock()
+	return len(fake.getAllTransactionsArgsForCall)
+}
+
+func (fake *Repository) GetAllTransactionsCalls(stub func(context.Context) ([]repository.Transaction, error)) {
+	fake.getAllTransactionsMutex.Lock()
+	defer fake.getAllTransactionsMutex.Unlock()
+	fake.GetAllTransactionsStub = stub
+}
+
+func (fake *Repository) GetAllTransactionsArgsForCall(i int) context.Context {
+	fake.getAllTransactionsMutex.RLock()
+	defer fake.getAllTransactionsMutex.RUnlock()
+	argsForCall := fake.getAllTransactionsArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *Repository) GetAllTransactionsReturns(result1 []repository.Transaction, result2 error) {
+	fake.getAllTransactionsMutex.Lock()
+	defer fake.getAllTransactionsMutex.Unlock()
+	fake.GetAllTransactionsStub = nil
+	fake.getAllTransactionsReturns = struct {
+		result1 []repository.Transaction
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *Repository) GetAllTransactionsReturnsOnCall(i int, result1 []repository.Transaction, result2 error) {
+	fake.getAllTransactionsMutex.Lock()
+	defer fake.getAllTransactionsMutex.Unlock()
+	fake.GetAllTransactionsStub = nil
+	if fake.getAllTransactionsReturnsOnCall == nil {
+		fake.getAllTransactionsReturnsOnCall = make(map[int]struct {
+			result1 []repository.Transaction
+			result2 error
+		})
+	}
+	fake.getAllTransactionsReturnsOnCall[i] = struct {
+		result1 []repository.Transaction
+		result2 error
+	}{result1, result2}
 }
 
 func (fake *Repository) GetTransactionsByHash(arg1 context.Context, arg2 []string) ([]repository.Transaction, error) {
@@ -420,6 +497,8 @@ func (fake *Repository) SaveUserHistoryReturnsOnCall(i int, result1 error) {
 func (fake *Repository) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.getAllTransactionsMutex.RLock()
+	defer fake.getAllTransactionsMutex.RUnlock()
 	fake.getTransactionsByHashMutex.RLock()
 	defer fake.getTransactionsByHashMutex.RUnlock()
 	fake.getUserFromDBMutex.RLock()

@@ -10,4 +10,5 @@ type Storage interface {
 	SaveToTable(rctx context.Context, records any) error
 	GetOneBy(ctx context.Context, column string, value any, entity any) error
 	GetAllBy(ctx context.Context, column string, value any, entity any) error
+	GetAll(ctx context.Context, entity any) error
 }

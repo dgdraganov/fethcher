@@ -23,6 +23,19 @@ type TransactionService struct {
 		result1 string
 		result2 error
 	}
+	GetAllDBTransactionsStub        func(context.Context) ([]core.TransactionRecord, error)
+	getAllDBTransactionsMutex       sync.RWMutex
+	getAllDBTransactionsArgsForCall []struct {
+		arg1 context.Context
+	}
+	getAllDBTransactionsReturns struct {
+		result1 []core.TransactionRecord
+		result2 error
+	}
+	getAllDBTransactionsReturnsOnCall map[int]struct {
+		result1 []core.TransactionRecord
+		result2 error
+	}
 	GetTransactionsStub        func(context.Context, []string) ([]core.TransactionRecord, error)
 	getTransactionsMutex       sync.RWMutex
 	getTransactionsArgsForCall []struct {
@@ -34,20 +47,6 @@ type TransactionService struct {
 		result2 error
 	}
 	getTransactionsReturnsOnCall map[int]struct {
-		result1 []core.TransactionRecord
-		result2 error
-	}
-	GetTransactionsRLPStub        func(context.Context, string) ([]core.TransactionRecord, error)
-	getTransactionsRLPMutex       sync.RWMutex
-	getTransactionsRLPArgsForCall []struct {
-		arg1 context.Context
-		arg2 string
-	}
-	getTransactionsRLPReturns struct {
-		result1 []core.TransactionRecord
-		result2 error
-	}
-	getTransactionsRLPReturnsOnCall map[int]struct {
 		result1 []core.TransactionRecord
 		result2 error
 	}
@@ -63,6 +62,19 @@ type TransactionService struct {
 	}
 	getUserTransactionsHistoryReturnsOnCall map[int]struct {
 		result1 []core.TransactionRecord
+		result2 error
+	}
+	ParseRLPStub        func(string) ([]string, error)
+	parseRLPMutex       sync.RWMutex
+	parseRLPArgsForCall []struct {
+		arg1 string
+	}
+	parseRLPReturns struct {
+		result1 []string
+		result2 error
+	}
+	parseRLPReturnsOnCall map[int]struct {
+		result1 []string
 		result2 error
 	}
 	SaveUserTransactionsHistoryStub        func(context.Context, string, []string) error
@@ -147,6 +159,70 @@ func (fake *TransactionService) AuthenticateReturnsOnCall(i int, result1 string,
 	}{result1, result2}
 }
 
+func (fake *TransactionService) GetAllDBTransactions(arg1 context.Context) ([]core.TransactionRecord, error) {
+	fake.getAllDBTransactionsMutex.Lock()
+	ret, specificReturn := fake.getAllDBTransactionsReturnsOnCall[len(fake.getAllDBTransactionsArgsForCall)]
+	fake.getAllDBTransactionsArgsForCall = append(fake.getAllDBTransactionsArgsForCall, struct {
+		arg1 context.Context
+	}{arg1})
+	stub := fake.GetAllDBTransactionsStub
+	fakeReturns := fake.getAllDBTransactionsReturns
+	fake.recordInvocation("GetAllDBTransactions", []interface{}{arg1})
+	fake.getAllDBTransactionsMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *TransactionService) GetAllDBTransactionsCallCount() int {
+	fake.getAllDBTransactionsMutex.RLock()
+	defer fake.getAllDBTransactionsMutex.RUnlock()
+	return len(fake.getAllDBTransactionsArgsForCall)
+}
+
+func (fake *TransactionService) GetAllDBTransactionsCalls(stub func(context.Context) ([]core.TransactionRecord, error)) {
+	fake.getAllDBTransactionsMutex.Lock()
+	defer fake.getAllDBTransactionsMutex.Unlock()
+	fake.GetAllDBTransactionsStub = stub
+}
+
+func (fake *TransactionService) GetAllDBTransactionsArgsForCall(i int) context.Context {
+	fake.getAllDBTransactionsMutex.RLock()
+	defer fake.getAllDBTransactionsMutex.RUnlock()
+	argsForCall := fake.getAllDBTransactionsArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *TransactionService) GetAllDBTransactionsReturns(result1 []core.TransactionRecord, result2 error) {
+	fake.getAllDBTransactionsMutex.Lock()
+	defer fake.getAllDBTransactionsMutex.Unlock()
+	fake.GetAllDBTransactionsStub = nil
+	fake.getAllDBTransactionsReturns = struct {
+		result1 []core.TransactionRecord
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *TransactionService) GetAllDBTransactionsReturnsOnCall(i int, result1 []core.TransactionRecord, result2 error) {
+	fake.getAllDBTransactionsMutex.Lock()
+	defer fake.getAllDBTransactionsMutex.Unlock()
+	fake.GetAllDBTransactionsStub = nil
+	if fake.getAllDBTransactionsReturnsOnCall == nil {
+		fake.getAllDBTransactionsReturnsOnCall = make(map[int]struct {
+			result1 []core.TransactionRecord
+			result2 error
+		})
+	}
+	fake.getAllDBTransactionsReturnsOnCall[i] = struct {
+		result1 []core.TransactionRecord
+		result2 error
+	}{result1, result2}
+}
+
 func (fake *TransactionService) GetTransactions(arg1 context.Context, arg2 []string) ([]core.TransactionRecord, error) {
 	var arg2Copy []string
 	if arg2 != nil {
@@ -217,71 +293,6 @@ func (fake *TransactionService) GetTransactionsReturnsOnCall(i int, result1 []co
 	}{result1, result2}
 }
 
-func (fake *TransactionService) GetTransactionsRLP(arg1 context.Context, arg2 string) ([]core.TransactionRecord, error) {
-	fake.getTransactionsRLPMutex.Lock()
-	ret, specificReturn := fake.getTransactionsRLPReturnsOnCall[len(fake.getTransactionsRLPArgsForCall)]
-	fake.getTransactionsRLPArgsForCall = append(fake.getTransactionsRLPArgsForCall, struct {
-		arg1 context.Context
-		arg2 string
-	}{arg1, arg2})
-	stub := fake.GetTransactionsRLPStub
-	fakeReturns := fake.getTransactionsRLPReturns
-	fake.recordInvocation("GetTransactionsRLP", []interface{}{arg1, arg2})
-	fake.getTransactionsRLPMutex.Unlock()
-	if stub != nil {
-		return stub(arg1, arg2)
-	}
-	if specificReturn {
-		return ret.result1, ret.result2
-	}
-	return fakeReturns.result1, fakeReturns.result2
-}
-
-func (fake *TransactionService) GetTransactionsRLPCallCount() int {
-	fake.getTransactionsRLPMutex.RLock()
-	defer fake.getTransactionsRLPMutex.RUnlock()
-	return len(fake.getTransactionsRLPArgsForCall)
-}
-
-func (fake *TransactionService) GetTransactionsRLPCalls(stub func(context.Context, string) ([]core.TransactionRecord, error)) {
-	fake.getTransactionsRLPMutex.Lock()
-	defer fake.getTransactionsRLPMutex.Unlock()
-	fake.GetTransactionsRLPStub = stub
-}
-
-func (fake *TransactionService) GetTransactionsRLPArgsForCall(i int) (context.Context, string) {
-	fake.getTransactionsRLPMutex.RLock()
-	defer fake.getTransactionsRLPMutex.RUnlock()
-	argsForCall := fake.getTransactionsRLPArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2
-}
-
-func (fake *TransactionService) GetTransactionsRLPReturns(result1 []core.TransactionRecord, result2 error) {
-	fake.getTransactionsRLPMutex.Lock()
-	defer fake.getTransactionsRLPMutex.Unlock()
-	fake.GetTransactionsRLPStub = nil
-	fake.getTransactionsRLPReturns = struct {
-		result1 []core.TransactionRecord
-		result2 error
-	}{result1, result2}
-}
-
-func (fake *TransactionService) GetTransactionsRLPReturnsOnCall(i int, result1 []core.TransactionRecord, result2 error) {
-	fake.getTransactionsRLPMutex.Lock()
-	defer fake.getTransactionsRLPMutex.Unlock()
-	fake.GetTransactionsRLPStub = nil
-	if fake.getTransactionsRLPReturnsOnCall == nil {
-		fake.getTransactionsRLPReturnsOnCall = make(map[int]struct {
-			result1 []core.TransactionRecord
-			result2 error
-		})
-	}
-	fake.getTransactionsRLPReturnsOnCall[i] = struct {
-		result1 []core.TransactionRecord
-		result2 error
-	}{result1, result2}
-}
-
 func (fake *TransactionService) GetUserTransactionsHistory(arg1 context.Context, arg2 string) ([]core.TransactionRecord, error) {
 	fake.getUserTransactionsHistoryMutex.Lock()
 	ret, specificReturn := fake.getUserTransactionsHistoryReturnsOnCall[len(fake.getUserTransactionsHistoryArgsForCall)]
@@ -343,6 +354,70 @@ func (fake *TransactionService) GetUserTransactionsHistoryReturnsOnCall(i int, r
 	}
 	fake.getUserTransactionsHistoryReturnsOnCall[i] = struct {
 		result1 []core.TransactionRecord
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *TransactionService) ParseRLP(arg1 string) ([]string, error) {
+	fake.parseRLPMutex.Lock()
+	ret, specificReturn := fake.parseRLPReturnsOnCall[len(fake.parseRLPArgsForCall)]
+	fake.parseRLPArgsForCall = append(fake.parseRLPArgsForCall, struct {
+		arg1 string
+	}{arg1})
+	stub := fake.ParseRLPStub
+	fakeReturns := fake.parseRLPReturns
+	fake.recordInvocation("ParseRLP", []interface{}{arg1})
+	fake.parseRLPMutex.Unlock()
+	if stub != nil {
+		return stub(arg1)
+	}
+	if specificReturn {
+		return ret.result1, ret.result2
+	}
+	return fakeReturns.result1, fakeReturns.result2
+}
+
+func (fake *TransactionService) ParseRLPCallCount() int {
+	fake.parseRLPMutex.RLock()
+	defer fake.parseRLPMutex.RUnlock()
+	return len(fake.parseRLPArgsForCall)
+}
+
+func (fake *TransactionService) ParseRLPCalls(stub func(string) ([]string, error)) {
+	fake.parseRLPMutex.Lock()
+	defer fake.parseRLPMutex.Unlock()
+	fake.ParseRLPStub = stub
+}
+
+func (fake *TransactionService) ParseRLPArgsForCall(i int) string {
+	fake.parseRLPMutex.RLock()
+	defer fake.parseRLPMutex.RUnlock()
+	argsForCall := fake.parseRLPArgsForCall[i]
+	return argsForCall.arg1
+}
+
+func (fake *TransactionService) ParseRLPReturns(result1 []string, result2 error) {
+	fake.parseRLPMutex.Lock()
+	defer fake.parseRLPMutex.Unlock()
+	fake.ParseRLPStub = nil
+	fake.parseRLPReturns = struct {
+		result1 []string
+		result2 error
+	}{result1, result2}
+}
+
+func (fake *TransactionService) ParseRLPReturnsOnCall(i int, result1 []string, result2 error) {
+	fake.parseRLPMutex.Lock()
+	defer fake.parseRLPMutex.Unlock()
+	fake.ParseRLPStub = nil
+	if fake.parseRLPReturnsOnCall == nil {
+		fake.parseRLPReturnsOnCall = make(map[int]struct {
+			result1 []string
+			result2 error
+		})
+	}
+	fake.parseRLPReturnsOnCall[i] = struct {
+		result1 []string
 		result2 error
 	}{result1, result2}
 }
@@ -420,12 +495,14 @@ func (fake *TransactionService) Invocations() map[string][][]interface{} {
 	defer fake.invocationsMutex.RUnlock()
 	fake.authenticateMutex.RLock()
 	defer fake.authenticateMutex.RUnlock()
+	fake.getAllDBTransactionsMutex.RLock()
+	defer fake.getAllDBTransactionsMutex.RUnlock()
 	fake.getTransactionsMutex.RLock()
 	defer fake.getTransactionsMutex.RUnlock()
-	fake.getTransactionsRLPMutex.RLock()
-	defer fake.getTransactionsRLPMutex.RUnlock()
 	fake.getUserTransactionsHistoryMutex.RLock()
 	defer fake.getUserTransactionsHistoryMutex.RUnlock()
+	fake.parseRLPMutex.RLock()
+	defer fake.parseRLPMutex.RUnlock()
 	fake.saveUserTransactionsHistoryMutex.RLock()
 	defer fake.saveUserTransactionsHistoryMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}

@@ -11,10 +11,9 @@ import (
 type HTTPServer struct {
 	server *http.Server
 	logs   *zap.SugaredLogger
-	mux    *http.ServeMux
 }
 
-func NewHTTP(logger *zap.SugaredLogger, mux *http.ServeMux, port string) *HTTPServer {
+func NewHTTP(logger *zap.SugaredLogger, mux http.Handler, port string) *HTTPServer {
 	server := &http.Server{
 		Handler: mux,
 		Addr:    fmt.Sprintf(":%s", port),

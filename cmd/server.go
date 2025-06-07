@@ -6,6 +6,7 @@ import (
 	"fethcher/internal/db"
 	"fethcher/internal/ethereum"
 	"fethcher/internal/http/handler"
+	"fethcher/internal/http/handler/middleware"
 	"fethcher/internal/http/payload"
 	"fethcher/internal/http/server"
 	"fethcher/internal/repository"
@@ -65,17 +66,23 @@ func Start() error {
 	// handler
 	limeHlr := handler.NewFethHandler(
 		logger,
-		payload.DecodeValidator{},
+		payload.Decoder{},
 		fethcher,
 	)
 
-	// register routes
+	// middleware
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /lime/authenticate", limeHlr.HandleAuthenticate)
-	mux.HandleFunc("GET /lime/eth", limeHlr.HandleGetTransactions)
-	mux.HandleFunc("GET /lime/eth/{rlpHash}", limeHlr.HandleGetTransactionsRLP)
+	hdlr := middleware.NewLoggingMiddleware(logger).Logging(mux)
+	hdlr = middleware.NewRequestIDMiddleware().RequestID(hdlr)
 
-	srv := server.NewHTTP(logger, mux, config.Port)
+	// register routes
+	mux.HandleFunc(handler.Authenticate, limeHlr.HandleAuthenticate)
+	mux.HandleFunc(handler.GetTransactions, limeHlr.HandleGetTransactions)
+	mux.HandleFunc(handler.GetTransactionsRLP, limeHlr.HandleGetTransactionsRLP)
+	mux.HandleFunc(handler.GetMyTransactions, limeHlr.HandleGetMyTransactions)
+	mux.HandleFunc(handler.GetAllTransactions, limeHlr.HandleGetAllTransactions)
+
+	srv := server.NewHTTP(logger, hdlr, config.Port)
 	return run(srv)
 }
 

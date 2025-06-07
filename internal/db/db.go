@@ -83,9 +83,17 @@ func (f *PostgresDB) GetOneBy(ctx context.Context, column string, value any, ent
 }
 
 func (f *PostgresDB) GetAllBy(ctx context.Context, column string, value any, entity any) error {
-	tx := f.DB.Where(fmt.Sprintf("%s IN ?", column), value).Find(entity)
+	tx := f.DB.Where(fmt.Sprintf("%s IN (?)", column), value).Find(entity)
 	if tx.Error != nil {
 		return fmt.Errorf("getting records by %q: %w", column, tx.Error)
+	}
+	return nil
+}
+
+func (f *PostgresDB) GetAll(ctx context.Context, entity any) error {
+	tx := f.DB.Find(entity)
+	if tx.Error != nil {
+		return fmt.Errorf("getting all records: %w", tx.Error)
 	}
 	return nil
 }

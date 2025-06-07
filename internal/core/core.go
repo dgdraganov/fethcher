@@ -114,20 +114,6 @@ func (f *Fethcher) GetTransactions(ctx context.Context, transactionsHashes []str
 	return records, nil
 }
 
-func (f *Fethcher) GetTransactionsRLP(ctx context.Context, rlphex string) ([]TransactionRecord, error) {
-	transactionsHashes, err := f.parseRLP(rlphex)
-	if err != nil {
-		return nil, fmt.Errorf("parse rlp: %w", err)
-	}
-
-	transactions, err := f.GetTransactions(ctx, transactionsHashes)
-	if err != nil {
-		return nil, fmt.Errorf("get transactions by hash: %w", err)
-	}
-
-	return transactions, err
-}
-
 func (f *Fethcher) SaveUserTransactionsHistory(ctx context.Context, token string, transactionsHashes []string) error {
 	if len(transactionsHashes) == 0 {
 		return nil
@@ -174,6 +160,33 @@ func (f *Fethcher) GetUserTransactionsHistory(ctx context.Context, token string)
 	return txRecords, nil
 }
 
+func (f *Fethcher) GetAllDBTransactions(ctx context.Context) ([]TransactionRecord, error) {
+	transactions, err := f.repo.GetAllTransactions(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("getting all transactions: %w", err)
+	}
+	records := f.repoTransactionToRecord(transactions)
+	return records, nil
+}
+
+func (f *Fethcher) ParseRLP(rlphex string) ([]string, error) {
+	data, err := hex.DecodeString(rlphex)
+	if err != nil {
+		return nil, fmt.Errorf("decode hex string: %w", err)
+	}
+
+	var txHashBytes [][]byte
+	if err := rlp.DecodeBytes(data, &txHashBytes); err != nil {
+		return nil, fmt.Errorf("decode rlp bytes: %w", err)
+	}
+
+	txHashes := make([]string, len(txHashBytes))
+	for i, b := range txHashBytes {
+		txHashes[i] = fmt.Sprintf("0x%s", hex.EncodeToString(b))
+	}
+	return txHashes, nil
+}
+
 func (f *Fethcher) saveTransactionsToDB(ctx context.Context, transactionRecords []TransactionRecord) error {
 	transactions := make([]repository.Transaction, 0, len(transactionRecords))
 	for _, tx := range transactionRecords {
@@ -204,8 +217,13 @@ func (f *Fethcher) getTransactionsFromDB(ctx context.Context, transactionsHashes
 		return nil, fmt.Errorf("get transactions by hash: %w", err)
 	}
 
-	records := make([]TransactionRecord, len(dbTransactions))
-	for i, tx := range dbTransactions {
+	records := f.repoTransactionToRecord(dbTransactions)
+	return records, nil
+}
+
+func (f *Fethcher) repoTransactionToRecord(transactions []repository.Transaction) []TransactionRecord {
+	records := make([]TransactionRecord, len(transactions))
+	for i, tx := range transactions {
 		records[i] = TransactionRecord{
 			TransactionHash:   tx.TransactionHash,
 			TransactionStatus: tx.TransactionStatus,
@@ -219,7 +237,7 @@ func (f *Fethcher) getTransactionsFromDB(ctx context.Context, transactionsHashes
 			Value:             tx.Value,
 		}
 	}
-	return records, nil
+	return records
 }
 
 func (f *Fethcher) getTransactionsFromNode(ctx context.Context, transactionsHashes []string) ([]TransactionRecord, error) {
@@ -242,22 +260,4 @@ func (f *Fethcher) getTransactionsFromNode(ctx context.Context, transactionsHash
 		}
 	}
 	return records, err
-}
-
-func (f *Fethcher) parseRLP(rlphex string) ([]string, error) {
-	data, err := hex.DecodeString(rlphex)
-	if err != nil {
-		return nil, fmt.Errorf("decode hex string: %w", err)
-	}
-
-	var txHashBytes [][]byte
-	if err := rlp.DecodeBytes(data, &txHashBytes); err != nil {
-		return nil, fmt.Errorf("decode rlp bytes: %w", err)
-	}
-
-	txHashes := make([]string, len(txHashBytes))
-	for i, b := range txHashBytes {
-		txHashes[i] = fmt.Sprintf("0x%s", hex.EncodeToString(b))
-	}
-	return txHashes, nil
 }

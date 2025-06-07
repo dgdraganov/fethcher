@@ -8,6 +8,18 @@ import (
 )
 
 type Storage struct {
+	GetAllStub        func(context.Context, any) error
+	getAllMutex       sync.RWMutex
+	getAllArgsForCall []struct {
+		arg1 context.Context
+		arg2 any
+	}
+	getAllReturns struct {
+		result1 error
+	}
+	getAllReturnsOnCall map[int]struct {
+		result1 error
+	}
 	GetAllByStub        func(context.Context, string, any, any) error
 	getAllByMutex       sync.RWMutex
 	getAllByArgsForCall []struct {
@@ -61,6 +73,68 @@ type Storage struct {
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
+}
+
+func (fake *Storage) GetAll(arg1 context.Context, arg2 any) error {
+	fake.getAllMutex.Lock()
+	ret, specificReturn := fake.getAllReturnsOnCall[len(fake.getAllArgsForCall)]
+	fake.getAllArgsForCall = append(fake.getAllArgsForCall, struct {
+		arg1 context.Context
+		arg2 any
+	}{arg1, arg2})
+	stub := fake.GetAllStub
+	fakeReturns := fake.getAllReturns
+	fake.recordInvocation("GetAll", []interface{}{arg1, arg2})
+	fake.getAllMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *Storage) GetAllCallCount() int {
+	fake.getAllMutex.RLock()
+	defer fake.getAllMutex.RUnlock()
+	return len(fake.getAllArgsForCall)
+}
+
+func (fake *Storage) GetAllCalls(stub func(context.Context, any) error) {
+	fake.getAllMutex.Lock()
+	defer fake.getAllMutex.Unlock()
+	fake.GetAllStub = stub
+}
+
+func (fake *Storage) GetAllArgsForCall(i int) (context.Context, any) {
+	fake.getAllMutex.RLock()
+	defer fake.getAllMutex.RUnlock()
+	argsForCall := fake.getAllArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *Storage) GetAllReturns(result1 error) {
+	fake.getAllMutex.Lock()
+	defer fake.getAllMutex.Unlock()
+	fake.GetAllStub = nil
+	fake.getAllReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *Storage) GetAllReturnsOnCall(i int, result1 error) {
+	fake.getAllMutex.Lock()
+	defer fake.getAllMutex.Unlock()
+	fake.GetAllStub = nil
+	if fake.getAllReturnsOnCall == nil {
+		fake.getAllReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.getAllReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
 }
 
 func (fake *Storage) GetAllBy(arg1 context.Context, arg2 string, arg3 any, arg4 any) error {
@@ -317,6 +391,8 @@ func (fake *Storage) SaveToTableReturnsOnCall(i int, result1 error) {
 func (fake *Storage) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
+	fake.getAllMutex.RLock()
+	defer fake.getAllMutex.RUnlock()
 	fake.getAllByMutex.RLock()
 	defer fake.getAllByMutex.RUnlock()
 	fake.getOneByMutex.RLock()

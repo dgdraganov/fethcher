@@ -72,9 +72,9 @@ func (r *TransactionRepository) GetUserHistory(ctx context.Context, userID strin
 	err := r.db.GetAllBy(ctx, "user_id", userID, &userTransactions)
 	if err != nil {
 		if errors.Is(err, db.ErrNotFound) {
-			return nil, fmt.Errorf("get user history: %w", ErrUserNotFound)
+			return nil, fmt.Errorf("get all by user_is: %w", ErrUserNotFound)
 		}
-		return nil, fmt.Errorf("get user history: %w", err)
+		return nil, fmt.Errorf("get all by user_is: %w", err)
 	}
 
 	txHashes := make([]string, 0, len(userTransactions))
@@ -127,5 +127,14 @@ func (r *TransactionRepository) GetTransactionsByHash(ctx context.Context, txHas
 		return transactions, fmt.Errorf("get transaction by hash: %w", err)
 	}
 
+	return transactions, nil
+}
+
+func (r *TransactionRepository) GetAllTransactions(ctx context.Context) ([]Transaction, error) {
+	transactions := []Transaction{}
+	err := r.db.GetAll(ctx, &transactions)
+	if err != nil {
+		return nil, fmt.Errorf("get all transactions from db: %w", err)
+	}
 	return transactions, nil
 }

@@ -18,6 +18,7 @@ type Repository interface {
 	SaveTransactions(ctx context.Context, transactions []repository.Transaction) error
 	GetUserHistory(ctx context.Context, userID string) ([]string, error)
 	SaveUserHistory(ctx context.Context, userID string, transactions []string) error
+	GetAllTransactions(ctx context.Context) ([]repository.Transaction, error)
 }
 
 //counterfeiter:generate -o fake -fake-name JWTIssuer . JWTIssuer

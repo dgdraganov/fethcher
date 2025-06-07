@@ -8,33 +8,33 @@ import (
 )
 
 type RequestValidator struct {
-	DecodeAndValidateJSONPayloadStub        func(*http.Request, any) error
-	decodeAndValidateJSONPayloadMutex       sync.RWMutex
-	decodeAndValidateJSONPayloadArgsForCall []struct {
+	DecodeJSONPayloadStub        func(*http.Request, any) error
+	decodeJSONPayloadMutex       sync.RWMutex
+	decodeJSONPayloadArgsForCall []struct {
 		arg1 *http.Request
 		arg2 any
 	}
-	decodeAndValidateJSONPayloadReturns struct {
+	decodeJSONPayloadReturns struct {
 		result1 error
 	}
-	decodeAndValidateJSONPayloadReturnsOnCall map[int]struct {
+	decodeJSONPayloadReturnsOnCall map[int]struct {
 		result1 error
 	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *RequestValidator) DecodeAndValidateJSONPayload(arg1 *http.Request, arg2 any) error {
-	fake.decodeAndValidateJSONPayloadMutex.Lock()
-	ret, specificReturn := fake.decodeAndValidateJSONPayloadReturnsOnCall[len(fake.decodeAndValidateJSONPayloadArgsForCall)]
-	fake.decodeAndValidateJSONPayloadArgsForCall = append(fake.decodeAndValidateJSONPayloadArgsForCall, struct {
+func (fake *RequestValidator) DecodeJSONPayload(arg1 *http.Request, arg2 any) error {
+	fake.decodeJSONPayloadMutex.Lock()
+	ret, specificReturn := fake.decodeJSONPayloadReturnsOnCall[len(fake.decodeJSONPayloadArgsForCall)]
+	fake.decodeJSONPayloadArgsForCall = append(fake.decodeJSONPayloadArgsForCall, struct {
 		arg1 *http.Request
 		arg2 any
 	}{arg1, arg2})
-	stub := fake.DecodeAndValidateJSONPayloadStub
-	fakeReturns := fake.decodeAndValidateJSONPayloadReturns
-	fake.recordInvocation("DecodeAndValidateJSONPayload", []interface{}{arg1, arg2})
-	fake.decodeAndValidateJSONPayloadMutex.Unlock()
+	stub := fake.DecodeJSONPayloadStub
+	fakeReturns := fake.decodeJSONPayloadReturns
+	fake.recordInvocation("DecodeJSONPayload", []interface{}{arg1, arg2})
+	fake.decodeJSONPayloadMutex.Unlock()
 	if stub != nil {
 		return stub(arg1, arg2)
 	}
@@ -44,44 +44,44 @@ func (fake *RequestValidator) DecodeAndValidateJSONPayload(arg1 *http.Request, a
 	return fakeReturns.result1
 }
 
-func (fake *RequestValidator) DecodeAndValidateJSONPayloadCallCount() int {
-	fake.decodeAndValidateJSONPayloadMutex.RLock()
-	defer fake.decodeAndValidateJSONPayloadMutex.RUnlock()
-	return len(fake.decodeAndValidateJSONPayloadArgsForCall)
+func (fake *RequestValidator) DecodeJSONPayloadCallCount() int {
+	fake.decodeJSONPayloadMutex.RLock()
+	defer fake.decodeJSONPayloadMutex.RUnlock()
+	return len(fake.decodeJSONPayloadArgsForCall)
 }
 
-func (fake *RequestValidator) DecodeAndValidateJSONPayloadCalls(stub func(*http.Request, any) error) {
-	fake.decodeAndValidateJSONPayloadMutex.Lock()
-	defer fake.decodeAndValidateJSONPayloadMutex.Unlock()
-	fake.DecodeAndValidateJSONPayloadStub = stub
+func (fake *RequestValidator) DecodeJSONPayloadCalls(stub func(*http.Request, any) error) {
+	fake.decodeJSONPayloadMutex.Lock()
+	defer fake.decodeJSONPayloadMutex.Unlock()
+	fake.DecodeJSONPayloadStub = stub
 }
 
-func (fake *RequestValidator) DecodeAndValidateJSONPayloadArgsForCall(i int) (*http.Request, any) {
-	fake.decodeAndValidateJSONPayloadMutex.RLock()
-	defer fake.decodeAndValidateJSONPayloadMutex.RUnlock()
-	argsForCall := fake.decodeAndValidateJSONPayloadArgsForCall[i]
+func (fake *RequestValidator) DecodeJSONPayloadArgsForCall(i int) (*http.Request, any) {
+	fake.decodeJSONPayloadMutex.RLock()
+	defer fake.decodeJSONPayloadMutex.RUnlock()
+	argsForCall := fake.decodeJSONPayloadArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *RequestValidator) DecodeAndValidateJSONPayloadReturns(result1 error) {
-	fake.decodeAndValidateJSONPayloadMutex.Lock()
-	defer fake.decodeAndValidateJSONPayloadMutex.Unlock()
-	fake.DecodeAndValidateJSONPayloadStub = nil
-	fake.decodeAndValidateJSONPayloadReturns = struct {
+func (fake *RequestValidator) DecodeJSONPayloadReturns(result1 error) {
+	fake.decodeJSONPayloadMutex.Lock()
+	defer fake.decodeJSONPayloadMutex.Unlock()
+	fake.DecodeJSONPayloadStub = nil
+	fake.decodeJSONPayloadReturns = struct {
 		result1 error
 	}{result1}
 }
 
-func (fake *RequestValidator) DecodeAndValidateJSONPayloadReturnsOnCall(i int, result1 error) {
-	fake.decodeAndValidateJSONPayloadMutex.Lock()
-	defer fake.decodeAndValidateJSONPayloadMutex.Unlock()
-	fake.DecodeAndValidateJSONPayloadStub = nil
-	if fake.decodeAndValidateJSONPayloadReturnsOnCall == nil {
-		fake.decodeAndValidateJSONPayloadReturnsOnCall = make(map[int]struct {
+func (fake *RequestValidator) DecodeJSONPayloadReturnsOnCall(i int, result1 error) {
+	fake.decodeJSONPayloadMutex.Lock()
+	defer fake.decodeJSONPayloadMutex.Unlock()
+	fake.DecodeJSONPayloadStub = nil
+	if fake.decodeJSONPayloadReturnsOnCall == nil {
+		fake.decodeJSONPayloadReturnsOnCall = make(map[int]struct {
 			result1 error
 		})
 	}
-	fake.decodeAndValidateJSONPayloadReturnsOnCall[i] = struct {
+	fake.decodeJSONPayloadReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }
@@ -89,8 +89,8 @@ func (fake *RequestValidator) DecodeAndValidateJSONPayloadReturnsOnCall(i int, r
 func (fake *RequestValidator) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
-	fake.decodeAndValidateJSONPayloadMutex.RLock()
-	defer fake.decodeAndValidateJSONPayloadMutex.RUnlock()
+	fake.decodeJSONPayloadMutex.RLock()
+	defer fake.decodeJSONPayloadMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value
