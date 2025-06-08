@@ -17,8 +17,12 @@ func (t TransactionsRequest) Validate() error {
 		return fmt.Errorf("compile regex: %w", err)
 	}
 
-	return validation.ValidateStruct(&t,
+	err = validation.ValidateStruct(&t,
 		validation.Field(&t.Transactions, validation.Required),
 		validation.Field(&t.Transactions, validation.Each(validation.Match(regex))),
 	)
+	if err != nil {
+		return fmt.Errorf("validate struct: %w", err)
+	}
+	return nil
 }

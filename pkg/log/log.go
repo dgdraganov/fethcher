@@ -7,10 +7,7 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// type ZapLogger struct {
-// 	*zap.SugaredLogger
-// }
-
+// NewZapLogger creates an instance of zap.SugaredLogger with default settings
 func NewZapLogger(serviceName string, logLevel zapcore.Level) *zap.SugaredLogger {
 	atom := zap.NewAtomicLevel()
 	atom.SetLevel(logLevel)

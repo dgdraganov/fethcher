@@ -23,32 +23,34 @@ func NewEthService(ethClient EthClient) *EthService {
 func (s *EthService) FetchTransactions(ctx context.Context, hashes []string) ([]*Transaction, error) {
 	resultsChan := make(chan *TxResult)
 
-	var wg sync.WaitGroup
-	for i, hashStr := range hashes {
-		wg.Add(1)
+	var waitGrp sync.WaitGroup
+	for ind, hashStr := range hashes {
+		waitGrp.Add(1)
 		go func(i int, hashStr string) {
-			defer wg.Done()
+			defer waitGrp.Done()
 			hash := common.HexToHash(hashStr)
 			res := s.getTransactionByHash(ctx, hash)
 			if res.Error != nil {
 				res.Error = fmt.Errorf("fetching transaction %q: %w", hashStr, res.Error)
 			}
 			resultsChan <- res
-		}(i, hashStr)
+		}(ind, hashStr)
 	}
 
 	go func() {
-		wg.Wait()
+		waitGrp.Wait()
 		close(resultsChan)
 	}()
 
 	var results []*Transaction
+
 	var aggrErr error
 	for result := range resultsChan {
 		if result.Error != nil {
 			aggrErr = errors.Join(aggrErr, result.Error)
 			continue
 		}
+
 		results = append(results, result.Transaction)
 	}
 
@@ -72,6 +74,7 @@ func (s *EthService) getTransactionByHash(ctx context.Context, hash common.Hash)
 	}
 
 	signer := types.LatestSignerForChainID(chainID)
+
 	from, err := types.Sender(signer, tx)
 	if err != nil {
 		return &TxResult{nil, err}
@@ -83,6 +86,7 @@ func (s *EthService) getTransactionByHash(ctx context.Context, hash common.Hash)
 	}
 
 	var contractAddress *string
+
 	if receipt.ContractAddress != (common.Address{}) {
 		addr := receipt.ContractAddress.Hex()
 		contractAddress = &addr

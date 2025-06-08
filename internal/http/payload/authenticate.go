@@ -2,6 +2,7 @@ package payload
 
 import (
 	"fethcher/internal/core"
+	"fmt"
 
 	"github.com/jellydator/validation"
 )
@@ -12,10 +13,15 @@ type AuthRequest struct {
 }
 
 func (a AuthRequest) Validate() error {
-	return validation.ValidateStruct(&a,
+	err := validation.ValidateStruct(&a,
 		validation.Field(&a.Username, validation.Required),
 		validation.Field(&a.Password, validation.Required),
 	)
+	if err != nil {
+		return fmt.Errorf("validate struct: %w", err)
+	}
+
+	return nil
 }
 
 func (a AuthRequest) ToMessage() core.AuthMessage {

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"context"
 	"fethcher/internal/config"
 	"fethcher/internal/core"
 	"fethcher/internal/db"
@@ -12,6 +13,7 @@ import (
 	"fethcher/internal/repository"
 	"fethcher/pkg/jwt"
 	"fethcher/pkg/log"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -29,7 +31,6 @@ func Start() error {
 		return err
 	}
 
-	// now 'fethcher' database exsists and we can connect to it
 	dbConn, err := db.NewPostgresDB(config.DBConnectionString)
 	if err != nil {
 		logger.Errorw("failed to connect to database", "error", err)
@@ -41,14 +42,21 @@ func Start() error {
 
 	// repository
 	repo := repository.NewTransactionRepository(dbConn)
-	err = repo.MigrateAndSeed()
+	err = repo.MigrateTables(
+		&repository.Transaction{},
+		&repository.User{},
+		&repository.UserTransaction{})
 	if err != nil {
-		logger.Errorw("failed to migrate and seed database", "error", err)
+		logger.Errorw("failed to migrate tables to database", "error", err)
+		return err
+	}
+	err = repo.SeedUserTable(context.Background())
+	if err != nil {
+		logger.Errorw("failed to seed user table", "error", err)
 		return err
 	}
 
-	// infura client token should be set in environment variable INFURA_TOKEN
-	client, err := ethclient.Dial("https://mainnet.infura.io/v3/2a99b1970a934959abf51e0b7df0fd62")
+	client, err := ethclient.Dial(config.NodeURL)
 	if err != nil {
 		logger.Errorw("infura connection failed", "error", err)
 		return err
@@ -101,7 +109,7 @@ func run(server *server.HTTPServer) error {
 
 	shErr := server.Shutdown()
 	if err == nil {
-		return shErr
+		return fmt.Errorf("server shutdown: %w", shErr)
 	}
 
 	return err

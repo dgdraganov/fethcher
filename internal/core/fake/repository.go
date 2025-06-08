@@ -36,12 +36,11 @@ type Repository struct {
 		result1 []repository.Transaction
 		result2 error
 	}
-	GetUserFromDBStub        func(context.Context, string, string) (repository.User, error)
+	GetUserFromDBStub        func(context.Context, string) (repository.User, error)
 	getUserFromDBMutex       sync.RWMutex
 	getUserFromDBArgsForCall []struct {
 		arg1 context.Context
 		arg2 string
-		arg3 string
 	}
 	getUserFromDBReturns struct {
 		result1 repository.User
@@ -228,20 +227,19 @@ func (fake *Repository) GetTransactionsByHashReturnsOnCall(i int, result1 []repo
 	}{result1, result2}
 }
 
-func (fake *Repository) GetUserFromDB(arg1 context.Context, arg2 string, arg3 string) (repository.User, error) {
+func (fake *Repository) GetUserFromDB(arg1 context.Context, arg2 string) (repository.User, error) {
 	fake.getUserFromDBMutex.Lock()
 	ret, specificReturn := fake.getUserFromDBReturnsOnCall[len(fake.getUserFromDBArgsForCall)]
 	fake.getUserFromDBArgsForCall = append(fake.getUserFromDBArgsForCall, struct {
 		arg1 context.Context
 		arg2 string
-		arg3 string
-	}{arg1, arg2, arg3})
+	}{arg1, arg2})
 	stub := fake.GetUserFromDBStub
 	fakeReturns := fake.getUserFromDBReturns
-	fake.recordInvocation("GetUserFromDB", []interface{}{arg1, arg2, arg3})
+	fake.recordInvocation("GetUserFromDB", []interface{}{arg1, arg2})
 	fake.getUserFromDBMutex.Unlock()
 	if stub != nil {
-		return stub(arg1, arg2, arg3)
+		return stub(arg1, arg2)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -255,17 +253,17 @@ func (fake *Repository) GetUserFromDBCallCount() int {
 	return len(fake.getUserFromDBArgsForCall)
 }
 
-func (fake *Repository) GetUserFromDBCalls(stub func(context.Context, string, string) (repository.User, error)) {
+func (fake *Repository) GetUserFromDBCalls(stub func(context.Context, string) (repository.User, error)) {
 	fake.getUserFromDBMutex.Lock()
 	defer fake.getUserFromDBMutex.Unlock()
 	fake.GetUserFromDBStub = stub
 }
 
-func (fake *Repository) GetUserFromDBArgsForCall(i int) (context.Context, string, string) {
+func (fake *Repository) GetUserFromDBArgsForCall(i int) (context.Context, string) {
 	fake.getUserFromDBMutex.RLock()
 	defer fake.getUserFromDBMutex.RUnlock()
 	argsForCall := fake.getUserFromDBArgsForCall[i]
-	return argsForCall.arg1, argsForCall.arg2, argsForCall.arg3
+	return argsForCall.arg1, argsForCall.arg2
 }
 
 func (fake *Repository) GetUserFromDBReturns(result1 repository.User, result2 error) {

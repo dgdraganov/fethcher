@@ -38,7 +38,7 @@ func NewFethcher(logger *zap.SugaredLogger, repo Repository, jwt JWTIssuer, ethe
 }
 
 func (f *Fethcher) Authenticate(ctx context.Context, msg AuthMessage) (string, error) {
-	user, err := f.repo.GetUserFromDB(ctx, msg.Username, msg.Password)
+	user, err := f.repo.GetUserFromDB(ctx, msg.Username)
 	if err != nil {
 		if errors.Is(err, repository.ErrUserNotFound) {
 			return "", ErrUserNotFound
@@ -87,6 +87,7 @@ func (f *Fethcher) GetTransactions(ctx context.Context, transactionsHashes []str
 	}
 
 	missingTransactions := make([]string, 0, len(transactionsHashes)-len(records))
+
 	for _, transactionHash := range transactionsHashes {
 		if _, ok := recordsMap[transactionHash]; !ok {
 			missingTransactions = append(missingTransactions, transactionHash)
@@ -98,16 +99,14 @@ func (f *Fethcher) GetTransactions(ctx context.Context, transactionsHashes []str
 		f.logs.Errorw("getting transactions from node", "error", err)
 	}
 
-	f.logs.Infow("transactions fetched from ethereum", "count", len(nodeTxs))
-
 	records = append(records, nodeTxs...)
 
-	f.logs.Infow("caching transactions to DB", "count", len(records))
+	f.logs.Infow("caching transactions from eth node to DB", "transactions", nodeTxs)
 
 	go func() {
-		err = f.saveTransactionsToDB(ctx, records)
+		err = f.saveTransactionsToDB(ctx, nodeTxs)
 		if err != nil {
-			f.logs.Errorw("failed to save transactions to DB", "error", err, "count", len(records))
+			f.logs.Errorw("failed to save transactions to DB", "error", err, "count", len(nodeTxs))
 		}
 	}()
 
@@ -131,7 +130,7 @@ func (f *Fethcher) SaveUserTransactionsHistory(ctx context.Context, token string
 		return fmt.Errorf("save user history: %w", err)
 	}
 
-	f.logs.Infow("user history saved", "userId", userId, "transactionsCount", len(transactionsHashes))
+	f.logs.Infow("user history saved", "userId", userId, "transactions", transactionsHashes)
 	return nil
 }
 
@@ -166,6 +165,7 @@ func (f *Fethcher) GetAllDBTransactions(ctx context.Context) ([]TransactionRecor
 		return nil, fmt.Errorf("getting all transactions: %w", err)
 	}
 	records := f.repoTransactionToRecord(transactions)
+
 	return records, nil
 }
 
@@ -203,8 +203,8 @@ func (f *Fethcher) saveTransactionsToDB(ctx context.Context, transactionRecords 
 			Value:             tx.Value,
 		})
 	}
-	err := f.repo.SaveTransactions(ctx, transactions)
-	if err != nil {
+
+	if err := f.repo.SaveTransactions(ctx, transactions); err != nil {
 		return fmt.Errorf("repo save transactions: %w", err)
 	}
 	return nil

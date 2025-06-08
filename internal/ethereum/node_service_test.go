@@ -21,12 +21,10 @@ var _ = Describe("EthService", func() {
 		service    *ethereum.EthService
 		fakeClient *fake.EthClient
 		ctx        context.Context
-		// testHash   common.Hash
-		testErr error
+		testErr    error
 	)
 
 	BeforeEach(func() {
-		// testHash = common.HexToHash("0x123")
 		fakeClient = new(fake.EthClient)
 		testErr = errors.New("test error")
 		ctx = context.Background()

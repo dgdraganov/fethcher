@@ -54,7 +54,7 @@ var _ = Describe("Fethcher", func() {
 
 		BeforeEach(func() {
 			userId = uuid.New().String()
-			hashedPassword = "$2a$10$1MZHKX./8Dxi9t.F1/gnx.njCcEty299Hx01GLEms2moa3brpT0ky" // bcrypt hash of "testpass"
+			hashedPassword = "$2a$10$1MZHKX./8Dxi9t.F1/gnx.njCcEty299Hx01GLEms2moa3brpT0ky"
 			genToken = jwt.New(jwt.SigningMethodHS256)
 
 			authMsg = core.AuthMessage{
@@ -91,9 +91,8 @@ var _ = Describe("Fethcher", func() {
 				Expect(token).To(Equal("signed.token"))
 
 				Expect(fakeRepo.GetUserFromDBCallCount()).To(Equal(1))
-				_, username, password := fakeRepo.GetUserFromDBArgsForCall(0)
+				_, username := fakeRepo.GetUserFromDBArgsForCall(0)
 				Expect(username).To(Equal(authMsg.Username))
-				Expect(password).To(Equal(authMsg.Password))
 
 				Expect(fakeJWT.GenerateCallCount()).To(Equal(1))
 				argGen := fakeJWT.GenerateArgsForCall(0)
@@ -119,7 +118,7 @@ var _ = Describe("Fethcher", func() {
 			BeforeEach(func() {
 				fakeRepo.GetUserFromDBReturns(repository.User{
 					Username:     authMsg.Username,
-					PasswordHash: hashedPassword, // bcrypt hash of "testpass"
+					PasswordHash: hashedPassword,
 				}, nil)
 				authMsg.Password = "wrongpass"
 			})

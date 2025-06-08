@@ -53,7 +53,6 @@ var _ = Describe("Database", func() {
 		var err error
 
 		BeforeEach(func() {
-			// Reset the mock expectations before each test
 			mock.ExpectQuery(`SELECT.*FROM information_schema\.tables.*`).
 				WillReturnRows(sqlmock.NewRows([]string{"exists"}).AddRow(0))
 
@@ -69,11 +68,9 @@ var _ = Describe("Database", func() {
 		})
 	})
 
-	Describe("SaveToTable", func() {
+	Describe("InsertToTable", func() {
+		var err error
 		BeforeEach(func() {
-			mock.ExpectQuery(`SELECT.*FROM "tests".*`).
-				WillReturnRows(sqlmock.NewRows([]string{"id", "username"}))
-
 			mock.ExpectBegin()
 
 			mock.ExpectQuery(`^INSERT INTO "tests" \("username","id"\) VALUES \(\$1,\$2\),\(\$3,\$4\) RETURNING "id"$`).
@@ -83,11 +80,14 @@ var _ = Describe("Database", func() {
 			mock.ExpectCommit()
 		})
 
-		It("should save records without errors", func() {
-			err := testDB.SaveToTable(context.Background(), &[]Test{
+		JustBeforeEach(func() {
+			err = testDB.InsertToTable(context.Background(), &[]Test{
 				{ID: 1, Username: "Alice"},
 				{ID: 2, Username: "Bob"},
 			})
+		})
+
+		It("should save records without errors", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(mock.ExpectationsWereMet()).To(Succeed())
 		})

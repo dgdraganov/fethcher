@@ -21,12 +21,15 @@ func NewTransactionRepository(db Storage) *TransactionRepository {
 	}
 }
 
-func (r *TransactionRepository) MigrateAndSeed() error {
-
-	err := r.db.MigrateTable(&Transaction{}, &User{}, &UserTransaction{})
+func (r *TransactionRepository) MigrateTables(tables ...any) error {
+	err := r.db.MigrateTable(tables...)
 	if err != nil {
 		return fmt.Errorf("migrate table(s): %w", err)
 	}
+	return err
+}
+
+func (r *TransactionRepository) SeedUserTable(ctx context.Context) error {
 
 	users := []User{
 		{
@@ -50,7 +53,7 @@ func (r *TransactionRepository) MigrateAndSeed() error {
 			PasswordHash: "$2a$10$53qBwnstmYjn4S5HbYoiYe5i.SyQxyZfBiPiCoB1241HRtpVYFMvG",
 		},
 	}
-	err = r.db.SaveToTable(context.Background(), &users)
+	err := r.db.SeedTable(ctx, &users)
 	if err != nil {
 		return fmt.Errorf("seed database: %w", err)
 	}
@@ -59,13 +62,15 @@ func (r *TransactionRepository) MigrateAndSeed() error {
 }
 
 func (r *TransactionRepository) SaveTransactions(ctx context.Context, transactions []Transaction) error {
-	err := r.db.SaveToTable(ctx, &transactions)
+	err := r.db.InsertToTable(ctx, &transactions)
 	if err != nil {
 		return fmt.Errorf("save to table: %w", err)
 	}
 
 	return nil
 }
+
+// GetUserHistory receives userID and retrieves the user transctions history.
 func (r *TransactionRepository) GetUserHistory(ctx context.Context, userID string) ([]string, error) {
 	var userTransactions []UserTransaction
 
@@ -85,28 +90,43 @@ func (r *TransactionRepository) GetUserHistory(ctx context.Context, userID strin
 	return txHashes, nil
 }
 
+// SaveUserHistory receives an userID and a slice of transaction hashes and saves the user query history in the DB
 func (r *TransactionRepository) SaveUserHistory(ctx context.Context, userID string, transactions []string) error {
 	if len(transactions) == 0 {
 		return nil
 	}
 
-	userTransactions := make([]UserTransaction, 0, len(transactions))
-	for _, tx := range transactions {
-		userTransactions = append(userTransactions, UserTransaction{
-			UserID:          userID,
-			TransactionHash: tx,
-		})
+	var dbUserTransactions []UserTransaction
+	err := r.db.GetAllBy(ctx, "user_id", userID, &dbUserTransactions)
+	if err != nil {
+		return fmt.Errorf("get user transactions from db: %w", err)
 	}
 
-	err := r.db.SaveToTable(ctx, &userTransactions)
+	var dbUserTxsMap = make(map[string]struct{}, len(dbUserTransactions))
+	for _, tx := range dbUserTransactions {
+		dbUserTxsMap[tx.TransactionHash] = struct{}{}
+	}
+
+	userTransactions := []UserTransaction{}
+	for _, tx := range transactions {
+		if _, exists := dbUserTxsMap[tx]; !exists {
+			userTransactions = append(userTransactions, UserTransaction{
+				UserID:          userID,
+				TransactionHash: tx,
+			})
+		}
+	}
+
+	err = r.db.InsertToTable(ctx, &userTransactions)
 	if err != nil {
-		return fmt.Errorf("save user history: %w", err)
+		return fmt.Errorf("insert into table user_transactions: %w", err)
 	}
 
 	return nil
 }
 
-func (r *TransactionRepository) GetUserFromDB(ctx context.Context, username, password string) (User, error) {
+// GetUserFromDB receives an username and retrieves the user data from the DB.
+func (r *TransactionRepository) GetUserFromDB(ctx context.Context, username string) (User, error) {
 	var user User
 
 	err := r.db.GetOneBy(ctx, "username", username, &user)
@@ -120,6 +140,7 @@ func (r *TransactionRepository) GetUserFromDB(ctx context.Context, username, pas
 	return user, nil
 }
 
+// GetTransactionsByHash receives a slice of transaction hashes and tries to retrieve them from the DB. The transactoins that cannot be found in the DB are then queried for from the Ethereum network and cached in the DB.
 func (r *TransactionRepository) GetTransactionsByHash(ctx context.Context, txHashes []string) ([]Transaction, error) {
 	transactions := []Transaction{}
 	err := r.db.GetAllBy(ctx, "transaction_hash", txHashes, &transactions)
@@ -130,6 +151,7 @@ func (r *TransactionRepository) GetTransactionsByHash(ctx context.Context, txHas
 	return transactions, nil
 }
 
+// GetAllTransactions retrieves all transactions from the DB
 func (r *TransactionRepository) GetAllTransactions(ctx context.Context) ([]Transaction, error) {
 	transactions := []Transaction{}
 	err := r.db.GetAll(ctx, &transactions)

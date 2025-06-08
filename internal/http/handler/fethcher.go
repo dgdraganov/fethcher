@@ -263,12 +263,12 @@ func (h *FethHandler) HandleGetTransactionsRLP(w http.ResponseWriter, r *http.Re
 			if err != nil {
 				h.logs.Errorw("failed to save user history",
 					"error", err,
-					"handler", GetTransactions,
+					"handler", GetTransactionsRLP,
 					"request_id", requestId)
 			} else {
 				h.logs.Infow("user history saved successfully",
 					"num_of_transactions", len(transactionHashes),
-					"handler", GetTransactions,
+					"handler", GetTransactionsRLP,
 					"request_id", requestId)
 			}
 		}()

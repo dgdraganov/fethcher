@@ -27,33 +27,26 @@ var _ = Describe("TransactionRepository", func() {
 		ctx = context.Background()
 	})
 
-	Describe("MigrateAndSeed", func() {
+	Describe("Migrate", func() {
 		var err error
 
 		JustBeforeEach(func() {
-			err = repo.MigrateAndSeed()
+			err = repo.MigrateTables(&repository.Transaction{}, &repository.User{}, &repository.UserTransaction{})
 		})
 
 		When("migration succeeds", func() {
 			BeforeEach(func() {
 				fakeStorage.MigrateTableReturns(nil)
-				fakeStorage.SaveToTableReturns(nil)
 			})
 
-			It("should migrate tables and seed users", func() {
-
+			It("should migrate tables", func() {
 				Expect(err).NotTo(HaveOccurred())
-
 				Expect(fakeStorage.MigrateTableCallCount()).To(Equal(1))
 				tables := fakeStorage.MigrateTableArgsForCall(0)
 				Expect(tables).To(HaveLen(3))
 				Expect(tables[0]).To(BeAssignableToTypeOf(&repository.Transaction{}))
 				Expect(tables[1]).To(BeAssignableToTypeOf(&repository.User{}))
 				Expect(tables[2]).To(BeAssignableToTypeOf(&repository.UserTransaction{}))
-
-				Expect(fakeStorage.SaveToTableCallCount()).To(Equal(1))
-				_, records := fakeStorage.SaveToTableArgsForCall(0)
-				Expect(records).To(BeAssignableToTypeOf(&[]repository.User{}))
 			})
 		})
 
@@ -66,16 +59,44 @@ var _ = Describe("TransactionRepository", func() {
 				Expect(err).To(MatchError("migrate table(s): migration error"))
 			})
 		})
+	})
 
-		When("seeding data fails", func() {
+	Describe("SeedUserTable", func() {
+		var err error
+
+		JustBeforeEach(func() {
+			err = repo.SeedUserTable(context.Background())
+		})
+
+		When("seeding succeeds", func() {
 			BeforeEach(func() {
-				fakeStorage.MigrateTableReturns(nil)
-				fakeStorage.SaveToTableReturns(errors.New("seed error"))
+				fakeStorage.SeedTableReturns(nil)
+			})
+
+			It("should seed user table", func() {
+				Expect(err).NotTo(HaveOccurred())
+				Expect(fakeStorage.SeedTableCallCount()).To(Equal(1))
+				_, argUsers := fakeStorage.SeedTableArgsForCall(0)
+				usersPtr, ok := argUsers.(*[]repository.User)
+				Expect(ok).To(BeTrue())
+				Expect(usersPtr).NotTo(BeNil())
+				users := *usersPtr
+				Expect(users).NotTo(BeNil())
+				Expect(users[0].Username).To(Equal("alice"))
+				Expect(users[1].Username).To(Equal("bob"))
+				Expect(users[2].Username).To(Equal("carol"))
+				Expect(users[3].Username).To(Equal("dave"))
+			})
+		})
+
+		When("seeding fails", func() {
+			BeforeEach(func() {
+				fakeStorage.SeedTableReturns(fakeErr)
 			})
 
 			It("should return an error", func() {
-				err := repo.MigrateAndSeed()
-				Expect(err).To(MatchError("seed database: seed error"))
+				Expect(err).To(MatchError(fakeErr))
+				Expect(fakeStorage.SeedTableCallCount()).To(Equal(1))
 			})
 		})
 	})
@@ -102,25 +123,24 @@ var _ = Describe("TransactionRepository", func() {
 
 		When("save transactions succeeds", func() {
 			BeforeEach(func() {
-				fakeStorage.SaveToTableReturns(nil)
+				fakeStorage.InsertToTableReturns(nil)
 			})
 
 			It("should save transactions", func() {
 				Expect(err).NotTo(HaveOccurred())
-
-				Expect(fakeStorage.SaveToTableCallCount()).To(Equal(1))
-				_, arg := fakeStorage.SaveToTableArgsForCall(0)
+				Expect(fakeStorage.InsertToTableCallCount()).To(Equal(1))
+				_, arg := fakeStorage.InsertToTableArgsForCall(0)
 				Expect(arg).To(Equal(&transactions))
 			})
 		})
 
 		When("save transactions fails", func() {
 			BeforeEach(func() {
-				fakeStorage.SaveToTableReturns(errors.New("save error"))
+				fakeStorage.InsertToTableReturns(fakeErr)
 			})
 
 			It("should return an error", func() {
-				Expect(err).To(MatchError("save to table: save error"))
+				Expect(err).To(MatchError(fakeErr))
 			})
 		})
 	})
@@ -204,21 +224,21 @@ var _ = Describe("TransactionRepository", func() {
 
 		When("save succeeds", func() {
 			BeforeEach(func() {
-				fakeStorage.SaveToTableReturns(nil)
+				fakeStorage.InsertToTableReturns(nil)
 			})
 
 			It("should save user transactions", func() {
 				Expect(err).NotTo(HaveOccurred())
 
-				Expect(fakeStorage.SaveToTableCallCount()).To(Equal(1))
-				_, arg := fakeStorage.SaveToTableArgsForCall(0)
+				Expect(fakeStorage.InsertToTableCallCount()).To(Equal(1))
+				_, arg := fakeStorage.InsertToTableArgsForCall(0)
 				Expect(arg).To(BeAssignableToTypeOf(&[]repository.UserTransaction{}))
 			})
 		})
 
 		When("save fails", func() {
 			BeforeEach(func() {
-				fakeStorage.SaveToTableReturns(fakeErr)
+				fakeStorage.InsertToTableReturns(fakeErr)
 			})
 
 			It("should return an error", func() {
@@ -232,7 +252,7 @@ var _ = Describe("TransactionRepository", func() {
 			})
 			It("should return immediately", func() {
 				Expect(err).NotTo(HaveOccurred())
-				Expect(fakeStorage.SaveToTableCallCount()).To(Equal(0))
+				Expect(fakeStorage.InsertToTableCallCount()).To(Equal(0))
 			})
 		})
 	})
@@ -242,13 +262,11 @@ var _ = Describe("TransactionRepository", func() {
 			user     repository.User
 			err      error
 			username string
-			password string
 			testUser repository.User
 		)
 
 		BeforeEach(func() {
 			username = "alice"
-			password = "password123"
 			testUser = repository.User{
 				ID:           uuid.NewString(),
 				Username:     username,
@@ -256,7 +274,7 @@ var _ = Describe("TransactionRepository", func() {
 			}
 		})
 		JustBeforeEach(func() {
-			user, err = repo.GetUserFromDB(ctx, username, password)
+			user, err = repo.GetUserFromDB(ctx, username)
 		})
 
 		When("user exists", func() {

@@ -22,6 +22,7 @@ func NewPostgresDB(dsn string) (*PostgresDB, error) {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
+
 	if err != nil {
 		return &PostgresDB{}, fmt.Errorf("failed to connect to database: %w", err)
 	}
@@ -40,33 +41,10 @@ func (f *PostgresDB) MigrateTable(tbl ...any) error {
 	return nil
 }
 
-func (f *PostgresDB) SaveToTable(ctx context.Context, records any) error {
-
-	v := reflect.ValueOf(records)
-	if v.Kind() != reflect.Ptr || v.Elem().Kind() != reflect.Slice {
-		return fmt.Errorf("records type must be pointer to a slice: %T", records)
-	}
-
-	slice := v.Elem()
-	if slice.Len() == 0 {
-		return nil
-	}
-
-	var count int64
-
-	elemType := slice.Index(0).Interface()
-	if err := f.DB.Model(elemType).Count(&count).Error; err != nil {
-		return fmt.Errorf("get model count: %w", err)
-	}
-
-	if count > 0 {
-		return nil
-	}
-
+func (f *PostgresDB) InsertToTable(ctx context.Context, records any) error {
 	if err := f.DB.Create(records).Error; err != nil {
 		return fmt.Errorf("insert to table: %w", err)
 	}
-
 	return nil
 }
 
@@ -95,5 +73,35 @@ func (f *PostgresDB) GetAll(ctx context.Context, entity any) error {
 	if tx.Error != nil {
 		return fmt.Errorf("getting all records: %w", tx.Error)
 	}
+	return nil
+}
+
+func (f *PostgresDB) SeedTable(ctx context.Context, records any) error {
+
+	v := reflect.ValueOf(records)
+	if v.Kind() != reflect.Ptr || v.Elem().Kind() != reflect.Slice {
+		return fmt.Errorf("records type must be pointer to a slice: %T", records)
+	}
+
+	slice := v.Elem()
+	if slice.Len() == 0 {
+		return nil
+	}
+
+	var count int64
+
+	elemType := slice.Index(0).Interface()
+	if err := f.DB.Model(elemType).Count(&count).Error; err != nil {
+		return fmt.Errorf("get model count: %w", err)
+	}
+
+	if count > 0 {
+		return nil
+	}
+
+	if err := f.DB.Create(records).Error; err != nil {
+		return fmt.Errorf("insert to table: %w", err)
+	}
+
 	return nil
 }

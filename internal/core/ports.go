@@ -13,7 +13,7 @@ import (
 
 //counterfeiter:generate -o fake -fake-name Repository . Repository
 type Repository interface {
-	GetUserFromDB(ctx context.Context, username, password string) (repository.User, error)
+	GetUserFromDB(ctx context.Context, username string) (repository.User, error)
 	GetTransactionsByHash(ctx context.Context, txHashes []string) ([]repository.Transaction, error)
 	SaveTransactions(ctx context.Context, transactions []repository.Transaction) error
 	GetUserHistory(ctx context.Context, userID string) ([]string, error)

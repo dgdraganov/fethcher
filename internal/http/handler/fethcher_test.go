@@ -18,7 +18,7 @@ import (
 
 var _ = Describe("FethHandler", func() {
 	var (
-		fh            *handler.FethHandler
+		fethHandler   *handler.FethHandler
 		fakeService   *fake.TransactionService
 		fakeValidator *fake.RequestValidator
 		fakeLogger    *zap.SugaredLogger
@@ -38,7 +38,7 @@ var _ = Describe("FethHandler", func() {
 		fakeValidator = new(fake.RequestValidator)
 
 		w = httptest.NewRecorder()
-		fh = handler.NewFethHandler(fakeLogger, fakeValidator, fakeService)
+		fethHandler = handler.NewFethHandler(fakeLogger, fakeValidator, fakeService)
 	})
 
 	Describe("HandleAuthenticate", func() {
@@ -49,7 +49,7 @@ var _ = Describe("FethHandler", func() {
 
 		BeforeEach(func() {
 			body := strings.NewReader(`{"username":"test","password":"pass"}`)
-			req = httptest.NewRequest("POST", "/lime/authenticate", body)
+			req = httptest.NewRequest(http.MethodPost, "/lime/authenticate", body)
 			req.Header.Set("Content-Type", "application/json")
 
 			fakeValidator.DecodeJSONPayloadStub = func(rec *http.Request, jsonPayload any) error {
@@ -58,7 +58,7 @@ var _ = Describe("FethHandler", func() {
 		})
 
 		JustBeforeEach(func() {
-			fh.HandleAuthenticate(w, req)
+			fethHandler.HandleAuthenticate(w, req)
 		})
 
 		When("authentication succeeds", func() {
@@ -108,11 +108,11 @@ var _ = Describe("FethHandler", func() {
 		)
 
 		BeforeEach(func() {
-			req = httptest.NewRequest("GET", "/lime/eth?transactionHashes=0x1&transactionHashes=0x2", nil)
+			req = httptest.NewRequest(http.MethodGet, "/lime/eth?transactionHashes=0x1&transactionHashes=0x2", nil)
 		})
 
 		JustBeforeEach(func() {
-			fh.HandleGetTransactions(w, req)
+			fethHandler.HandleGetTransactions(w, req)
 		})
 
 		When("transactions are fetched successfully", func() {
@@ -145,7 +145,7 @@ var _ = Describe("FethHandler", func() {
 
 		When("query parameters are invalid", func() {
 			BeforeEach(func() {
-				req = httptest.NewRequest("GET", "/lime/eth?invalid=param", nil)
+				req = httptest.NewRequest(http.MethodGet, "/lime/eth?invalid=param", nil)
 			})
 
 			It("should return 400 Bad Request", func() {
@@ -172,11 +172,11 @@ var _ = Describe("FethHandler", func() {
 
 		BeforeEach(func() {
 			rlp = "rlp123"
-			req = httptest.NewRequest("GET", "/lime/eth/"+rlp, nil)
+			req = httptest.NewRequest(http.MethodGet, "/lime/eth/"+rlp, nil)
 		})
 
 		JustBeforeEach(func() {
-			fh.HandleGetTransactionsRLP(w, req)
+			fethHandler.HandleGetTransactionsRLP(w, req)
 		})
 
 		When("rlp param is empty", func() {
@@ -235,7 +235,7 @@ var _ = Describe("FethHandler", func() {
 
 	Describe("HandleGetAll", func() {
 		JustBeforeEach(func() {
-			fh.HandleGetAllTransactions(w, req)
+			fethHandler.HandleGetAllTransactions(w, req)
 		})
 
 		When("GetAllDBTransactions succeeds", func() {
@@ -272,7 +272,7 @@ var _ = Describe("FethHandler", func() {
 			req.Header.Set("AUTH_TOKEN", testToken)
 		})
 		JustBeforeEach(func() {
-			fh.HandleGetMyTransactions(w, req)
+			fethHandler.HandleGetMyTransactions(w, req)
 		})
 
 		When("GetUserTransactionsHistory succeeds", func() {

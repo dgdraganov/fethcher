@@ -48,6 +48,18 @@ type Storage struct {
 	getOneByReturnsOnCall map[int]struct {
 		result1 error
 	}
+	InsertToTableStub        func(context.Context, any) error
+	insertToTableMutex       sync.RWMutex
+	insertToTableArgsForCall []struct {
+		arg1 context.Context
+		arg2 any
+	}
+	insertToTableReturns struct {
+		result1 error
+	}
+	insertToTableReturnsOnCall map[int]struct {
+		result1 error
+	}
 	MigrateTableStub        func(...any) error
 	migrateTableMutex       sync.RWMutex
 	migrateTableArgsForCall []struct {
@@ -59,16 +71,16 @@ type Storage struct {
 	migrateTableReturnsOnCall map[int]struct {
 		result1 error
 	}
-	SaveToTableStub        func(context.Context, any) error
-	saveToTableMutex       sync.RWMutex
-	saveToTableArgsForCall []struct {
+	SeedTableStub        func(context.Context, any) error
+	seedTableMutex       sync.RWMutex
+	seedTableArgsForCall []struct {
 		arg1 context.Context
 		arg2 any
 	}
-	saveToTableReturns struct {
+	seedTableReturns struct {
 		result1 error
 	}
-	saveToTableReturnsOnCall map[int]struct {
+	seedTableReturnsOnCall map[int]struct {
 		result1 error
 	}
 	invocations      map[string][][]interface{}
@@ -265,6 +277,68 @@ func (fake *Storage) GetOneByReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
+func (fake *Storage) InsertToTable(arg1 context.Context, arg2 any) error {
+	fake.insertToTableMutex.Lock()
+	ret, specificReturn := fake.insertToTableReturnsOnCall[len(fake.insertToTableArgsForCall)]
+	fake.insertToTableArgsForCall = append(fake.insertToTableArgsForCall, struct {
+		arg1 context.Context
+		arg2 any
+	}{arg1, arg2})
+	stub := fake.InsertToTableStub
+	fakeReturns := fake.insertToTableReturns
+	fake.recordInvocation("InsertToTable", []interface{}{arg1, arg2})
+	fake.insertToTableMutex.Unlock()
+	if stub != nil {
+		return stub(arg1, arg2)
+	}
+	if specificReturn {
+		return ret.result1
+	}
+	return fakeReturns.result1
+}
+
+func (fake *Storage) InsertToTableCallCount() int {
+	fake.insertToTableMutex.RLock()
+	defer fake.insertToTableMutex.RUnlock()
+	return len(fake.insertToTableArgsForCall)
+}
+
+func (fake *Storage) InsertToTableCalls(stub func(context.Context, any) error) {
+	fake.insertToTableMutex.Lock()
+	defer fake.insertToTableMutex.Unlock()
+	fake.InsertToTableStub = stub
+}
+
+func (fake *Storage) InsertToTableArgsForCall(i int) (context.Context, any) {
+	fake.insertToTableMutex.RLock()
+	defer fake.insertToTableMutex.RUnlock()
+	argsForCall := fake.insertToTableArgsForCall[i]
+	return argsForCall.arg1, argsForCall.arg2
+}
+
+func (fake *Storage) InsertToTableReturns(result1 error) {
+	fake.insertToTableMutex.Lock()
+	defer fake.insertToTableMutex.Unlock()
+	fake.InsertToTableStub = nil
+	fake.insertToTableReturns = struct {
+		result1 error
+	}{result1}
+}
+
+func (fake *Storage) InsertToTableReturnsOnCall(i int, result1 error) {
+	fake.insertToTableMutex.Lock()
+	defer fake.insertToTableMutex.Unlock()
+	fake.InsertToTableStub = nil
+	if fake.insertToTableReturnsOnCall == nil {
+		fake.insertToTableReturnsOnCall = make(map[int]struct {
+			result1 error
+		})
+	}
+	fake.insertToTableReturnsOnCall[i] = struct {
+		result1 error
+	}{result1}
+}
+
 func (fake *Storage) MigrateTable(arg1 ...any) error {
 	fake.migrateTableMutex.Lock()
 	ret, specificReturn := fake.migrateTableReturnsOnCall[len(fake.migrateTableArgsForCall)]
@@ -326,17 +400,17 @@ func (fake *Storage) MigrateTableReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *Storage) SaveToTable(arg1 context.Context, arg2 any) error {
-	fake.saveToTableMutex.Lock()
-	ret, specificReturn := fake.saveToTableReturnsOnCall[len(fake.saveToTableArgsForCall)]
-	fake.saveToTableArgsForCall = append(fake.saveToTableArgsForCall, struct {
+func (fake *Storage) SeedTable(arg1 context.Context, arg2 any) error {
+	fake.seedTableMutex.Lock()
+	ret, specificReturn := fake.seedTableReturnsOnCall[len(fake.seedTableArgsForCall)]
+	fake.seedTableArgsForCall = append(fake.seedTableArgsForCall, struct {
 		arg1 context.Context
 		arg2 any
 	}{arg1, arg2})
-	stub := fake.SaveToTableStub
-	fakeReturns := fake.saveToTableReturns
-	fake.recordInvocation("SaveToTable", []interface{}{arg1, arg2})
-	fake.saveToTableMutex.Unlock()
+	stub := fake.SeedTableStub
+	fakeReturns := fake.seedTableReturns
+	fake.recordInvocation("SeedTable", []interface{}{arg1, arg2})
+	fake.seedTableMutex.Unlock()
 	if stub != nil {
 		return stub(arg1, arg2)
 	}
@@ -346,44 +420,44 @@ func (fake *Storage) SaveToTable(arg1 context.Context, arg2 any) error {
 	return fakeReturns.result1
 }
 
-func (fake *Storage) SaveToTableCallCount() int {
-	fake.saveToTableMutex.RLock()
-	defer fake.saveToTableMutex.RUnlock()
-	return len(fake.saveToTableArgsForCall)
+func (fake *Storage) SeedTableCallCount() int {
+	fake.seedTableMutex.RLock()
+	defer fake.seedTableMutex.RUnlock()
+	return len(fake.seedTableArgsForCall)
 }
 
-func (fake *Storage) SaveToTableCalls(stub func(context.Context, any) error) {
-	fake.saveToTableMutex.Lock()
-	defer fake.saveToTableMutex.Unlock()
-	fake.SaveToTableStub = stub
+func (fake *Storage) SeedTableCalls(stub func(context.Context, any) error) {
+	fake.seedTableMutex.Lock()
+	defer fake.seedTableMutex.Unlock()
+	fake.SeedTableStub = stub
 }
 
-func (fake *Storage) SaveToTableArgsForCall(i int) (context.Context, any) {
-	fake.saveToTableMutex.RLock()
-	defer fake.saveToTableMutex.RUnlock()
-	argsForCall := fake.saveToTableArgsForCall[i]
+func (fake *Storage) SeedTableArgsForCall(i int) (context.Context, any) {
+	fake.seedTableMutex.RLock()
+	defer fake.seedTableMutex.RUnlock()
+	argsForCall := fake.seedTableArgsForCall[i]
 	return argsForCall.arg1, argsForCall.arg2
 }
 
-func (fake *Storage) SaveToTableReturns(result1 error) {
-	fake.saveToTableMutex.Lock()
-	defer fake.saveToTableMutex.Unlock()
-	fake.SaveToTableStub = nil
-	fake.saveToTableReturns = struct {
+func (fake *Storage) SeedTableReturns(result1 error) {
+	fake.seedTableMutex.Lock()
+	defer fake.seedTableMutex.Unlock()
+	fake.SeedTableStub = nil
+	fake.seedTableReturns = struct {
 		result1 error
 	}{result1}
 }
 
-func (fake *Storage) SaveToTableReturnsOnCall(i int, result1 error) {
-	fake.saveToTableMutex.Lock()
-	defer fake.saveToTableMutex.Unlock()
-	fake.SaveToTableStub = nil
-	if fake.saveToTableReturnsOnCall == nil {
-		fake.saveToTableReturnsOnCall = make(map[int]struct {
+func (fake *Storage) SeedTableReturnsOnCall(i int, result1 error) {
+	fake.seedTableMutex.Lock()
+	defer fake.seedTableMutex.Unlock()
+	fake.SeedTableStub = nil
+	if fake.seedTableReturnsOnCall == nil {
+		fake.seedTableReturnsOnCall = make(map[int]struct {
 			result1 error
 		})
 	}
-	fake.saveToTableReturnsOnCall[i] = struct {
+	fake.seedTableReturnsOnCall[i] = struct {
 		result1 error
 	}{result1}
 }
@@ -397,10 +471,12 @@ func (fake *Storage) Invocations() map[string][][]interface{} {
 	defer fake.getAllByMutex.RUnlock()
 	fake.getOneByMutex.RLock()
 	defer fake.getOneByMutex.RUnlock()
+	fake.insertToTableMutex.RLock()
+	defer fake.insertToTableMutex.RUnlock()
 	fake.migrateTableMutex.RLock()
 	defer fake.migrateTableMutex.RUnlock()
-	fake.saveToTableMutex.RLock()
-	defer fake.saveToTableMutex.RUnlock()
+	fake.seedTableMutex.RLock()
+	defer fake.seedTableMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

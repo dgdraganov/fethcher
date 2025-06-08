@@ -1,4 +1,6 @@
-# The Ethereum Fetcher - REST Server
+# f.ETH.cher - The Ethereum Fetcher REST Server
+
+## 
 
 # Description & Requirements
 
@@ -301,15 +303,3 @@ Add Dockerfile that builds an image of your server with tag `limeapi`. Your serv
 
 Improve your documentation with the changes for the modified api calls, how to run unit tests and docker work.
 
-# [Optional] Architect Requirements
-
-## Documentation
-
-Improve the documentation with:
-
-- C4 diagrams of the application
-- How would you improve the API? Reasoning around the design choices and tradeoffs
-- Your strategy for Continuous Integration of the API
-- Your strategy for Scalability of the service
-- How would you approach making this service paid? How would the architecture change?
-- How would you approach failing Ethereum Node URL?
