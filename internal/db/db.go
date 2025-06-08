@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -18,13 +19,9 @@ type PostgresDB struct {
 }
 
 func NewPostgresDB(dsn string) (*PostgresDB, error) {
-	var err error
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
-	})
-
+	db, err := connectWithRetry(dsn, 10)
 	if err != nil {
-		return &PostgresDB{}, fmt.Errorf("failed to connect to database: %w", err)
+		return nil, fmt.Errorf("connect to database with retries: %w", err)
 	}
 
 	return &PostgresDB{
@@ -104,4 +101,21 @@ func (f *PostgresDB) SeedTable(ctx context.Context, records any) error {
 	}
 
 	return nil
+}
+
+func connectWithRetry(dsn string, maxRetries int) (*gorm.DB, error) {
+	var db *gorm.DB
+	var err error
+
+	for i := 0; i < maxRetries; i++ {
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+			Logger: logger.Default.LogMode(logger.Info),
+		})
+		if err == nil {
+			return db, nil
+		}
+		<-time.After(time.Second * time.Duration(i+1))
+	}
+
+	return nil, fmt.Errorf("connect to database after %d retries: %w", maxRetries, err)
 }

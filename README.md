@@ -1,4 +1,4 @@
-# Fethcher - Ethereum Transaction Fetcher
+# F.ETH.cher - Ethereum Transaction Fetcher
 
 ## Overview
 
