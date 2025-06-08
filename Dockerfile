@@ -8,14 +8,13 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o fethcher ./main.go
 
-# Create a non-root user to run the application
-RUN useradd -r -u 10001 -g nogroup fethcheruser
+RUN useradd -r -u 10001 -g nogroup fethuser
 
 
 FROM scratch
 
 COPY --from=builder /app/fethcher /fethcher
 
-USER fethcheruser
+USER 10001
 
 ENTRYPOINT ["/fethcher"]
