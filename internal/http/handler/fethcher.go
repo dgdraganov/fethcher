@@ -192,7 +192,7 @@ func (h *FethHandler) HandleGetTransactionsRLP(w http.ResponseWriter, r *http.Re
 	if rlphex == "" {
 		h.respond(w, Response{
 			Message: "Request failed",
-			Error:   "rlp hash parameter is required",
+			Error:   "rlp parameter is required",
 		}, http.StatusBadRequest,
 			requestId)
 		h.logs.Errorw("missing rlpHash parameter",
@@ -241,7 +241,7 @@ func (h *FethHandler) HandleGetTransactionsRLP(w http.ResponseWriter, r *http.Re
 		h.respond(w, Response{
 			Message: "Request failed",
 			Error:   fmt.Errorf("get transactions by hash: %w", err).Error(),
-		}, http.StatusBadRequest,
+		}, http.StatusInternalServerError,
 			requestId)
 		h.logs.Errorw("failed to get transactions by hash",
 			"error", err,
