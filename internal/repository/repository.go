@@ -1,3 +1,4 @@
+// Package repository provides the implementation of the repository pattern for interacting with the database.
 package repository
 
 import (
@@ -11,16 +12,19 @@ import (
 
 var ErrUserNotFound error = errors.New("user not found")
 
+// TransactionRepository is a type that is used to interact with the database for transaction-related operations.
 type TransactionRepository struct {
 	db Storage
 }
 
+// NewTransactionRepository is a constructor function for the TransactionRepository type.
 func NewTransactionRepository(db Storage) *TransactionRepository {
 	return &TransactionRepository{
 		db: db,
 	}
 }
 
+// MigrateTables migrates the given tables to the database.
 func (r *TransactionRepository) MigrateTables(tables ...any) error {
 	err := r.db.MigrateTable(tables...)
 	if err != nil {
@@ -29,6 +33,7 @@ func (r *TransactionRepository) MigrateTables(tables ...any) error {
 	return err
 }
 
+// SeedUserTable seeds the user table with some initial data. This is useful for testing purposes only.
 func (r *TransactionRepository) SeedUserTable(ctx context.Context) error {
 
 	users := []User{
@@ -61,6 +66,7 @@ func (r *TransactionRepository) SeedUserTable(ctx context.Context) error {
 	return nil
 }
 
+// SaveTransactions receives a context and a slice of transactions and saves them to the DB.
 func (r *TransactionRepository) SaveTransactions(ctx context.Context, transactions []Transaction) error {
 	err := r.db.InsertToTable(ctx, &transactions)
 	if err != nil {
@@ -90,7 +96,7 @@ func (r *TransactionRepository) GetUserHistory(ctx context.Context, userID strin
 	return txHashes, nil
 }
 
-// SaveUserHistory receives an userID and a slice of transaction hashes and saves the user query history in the DB
+// SaveUserHistory receives an userID and a slice of transaction hashes and saves the user query history in the DB.
 func (r *TransactionRepository) SaveUserHistory(ctx context.Context, userID string, transactions []string) error {
 	if len(transactions) == 0 {
 		return nil

@@ -103,7 +103,10 @@ func (h *FethHandler) HandleGetTransactions(w http.ResponseWriter, r *http.Reque
 			Error:   fmt.Errorf("parse query parameters: %w", err).Error(),
 		}, http.StatusBadRequest,
 			requestId)
-		h.logs.Errorw("failed to parse query parameters", "error", err, "handler", GetTransactions, "request_id", requestId)
+		h.logs.Errorw("failed to parse query parameters",
+			"error", err,
+			"handler", GetTransactions,
+			"request_id", requestId)
 		return
 	}
 

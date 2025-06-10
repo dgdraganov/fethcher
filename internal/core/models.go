@@ -12,3 +12,8 @@ type TransactionRecord struct {
 	Input             string  `gorm:"type:text;not null"`
 	Value             string  `gorm:"size:100;not null"`
 }
+
+type AuthMessage struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}

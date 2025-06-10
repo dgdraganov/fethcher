@@ -10,16 +10,19 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
+// EthService defines the interface for interacting with Ethereum transactions.
 type EthService struct {
 	client EthClient
 }
 
+// NewEthService is a constructor function for the EthService type.
 func NewEthService(ethClient EthClient) *EthService {
 	return &EthService{
 		client: ethClient,
 	}
 }
 
+// FetchTransactions fetches multiple transactions by their hashes concurrently.
 func (s *EthService) FetchTransactions(ctx context.Context, hashes []string) ([]*Transaction, error) {
 	resultsChan := make(chan *TxResult)
 

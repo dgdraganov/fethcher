@@ -25,6 +25,7 @@ import (
 
 func Start() error {
 	logger := log.NewZapLogger("fethcher", zapcore.InfoLevel)
+
 	config, err := config.NewAppConfig()
 	if err != nil {
 		logger.Errorw("failed to create config", "error", err)
@@ -42,6 +43,7 @@ func Start() error {
 
 	// repository
 	repo := repository.NewTransactionRepository(dbConn)
+
 	err = repo.MigrateTables(
 		&repository.Transaction{},
 		&repository.User{},
@@ -50,6 +52,7 @@ func Start() error {
 		logger.Errorw("failed to migrate tables to database", "error", err)
 		return err
 	}
+
 	err = repo.SeedUserTable(context.Background())
 	if err != nil {
 		logger.Errorw("failed to seed user table", "error", err)
@@ -72,11 +75,10 @@ func Start() error {
 		ethService)
 
 	// handler
-	limeHlr := handler.NewFethHandler(
+	fethHlr := handler.NewFethHandler(
 		logger,
 		payload.Decoder{},
-		fethcher,
-	)
+		fethcher)
 
 	// middleware
 	mux := http.NewServeMux()
@@ -84,11 +86,11 @@ func Start() error {
 	hdlr = middleware.NewRequestIDMiddleware().RequestID(hdlr)
 
 	// register routes
-	mux.HandleFunc(handler.Authenticate, limeHlr.HandleAuthenticate)
-	mux.HandleFunc(handler.GetTransactions, limeHlr.HandleGetTransactions)
-	mux.HandleFunc(handler.GetTransactionsRLP, limeHlr.HandleGetTransactionsRLP)
-	mux.HandleFunc(handler.GetMyTransactions, limeHlr.HandleGetMyTransactions)
-	mux.HandleFunc(handler.GetAllTransactions, limeHlr.HandleGetAllTransactions)
+	mux.HandleFunc(handler.Authenticate, fethHlr.HandleAuthenticate)
+	mux.HandleFunc(handler.GetTransactions, fethHlr.HandleGetTransactions)
+	mux.HandleFunc(handler.GetTransactionsRLP, fethHlr.HandleGetTransactionsRLP)
+	mux.HandleFunc(handler.GetMyTransactions, fethHlr.HandleGetMyTransactions)
+	mux.HandleFunc(handler.GetAllTransactions, fethHlr.HandleGetAllTransactions)
 
 	srv := server.NewHTTP(logger, hdlr, config.Port)
 	return run(srv)

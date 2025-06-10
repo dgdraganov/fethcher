@@ -1,4 +1,4 @@
-// jwt pacakge provides functionality to generate, sign and velidate JWT tokens
+// package jwt provides functionality to generate, sign and validate JWT tokens
 package jwt
 
 import (

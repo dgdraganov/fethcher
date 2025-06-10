@@ -14,10 +14,12 @@ import (
 
 var ErrNotFound = errors.New("record not found")
 
+// PostgresDB is a struct that provides methods to interact with a PostgreSQL database using GORM.
 type PostgresDB struct {
 	DB *gorm.DB
 }
 
+// NewPostgresDB is a constructor function that initializes a new PostgresDB instance.
 func NewPostgresDB(dsn string) (*PostgresDB, error) {
 	db, err := connectWithRetry(dsn, 10)
 	if err != nil {
@@ -29,6 +31,7 @@ func NewPostgresDB(dsn string) (*PostgresDB, error) {
 	}, nil
 }
 
+// MigrateTable migrates the provided tables to the database schema.
 func (f *PostgresDB) MigrateTable(tbl ...any) error {
 	err := f.DB.AutoMigrate(tbl...)
 	if err != nil {
@@ -38,6 +41,7 @@ func (f *PostgresDB) MigrateTable(tbl ...any) error {
 	return nil
 }
 
+// InsertToTable inserts the provided records into the specified table.
 func (f *PostgresDB) InsertToTable(ctx context.Context, records any) error {
 	if err := f.DB.Create(records).Error; err != nil {
 		return fmt.Errorf("insert to table: %w", err)
@@ -45,6 +49,7 @@ func (f *PostgresDB) InsertToTable(ctx context.Context, records any) error {
 	return nil
 }
 
+// GetOneBy retrieves a single record from the specified table where the given column matches the provided value.
 func (f *PostgresDB) GetOneBy(ctx context.Context, column string, value any, entity any) error {
 	query := fmt.Sprintf("%s = ?", column)
 	err := f.DB.Where(query, value).First(&entity).Error
@@ -57,6 +62,7 @@ func (f *PostgresDB) GetOneBy(ctx context.Context, column string, value any, ent
 	return nil
 }
 
+// GetAllBy retrieves all records from the specified table where the given column matches the provided value.
 func (f *PostgresDB) GetAllBy(ctx context.Context, column string, value any, entity any) error {
 	tx := f.DB.Where(fmt.Sprintf("%s IN (?)", column), value).Find(entity)
 	if tx.Error != nil {
@@ -65,6 +71,7 @@ func (f *PostgresDB) GetAllBy(ctx context.Context, column string, value any, ent
 	return nil
 }
 
+// GetAll retrieves all records from the specified table and stores them in the provided entity object
 func (f *PostgresDB) GetAll(ctx context.Context, entity any) error {
 	tx := f.DB.Find(entity)
 	if tx.Error != nil {
@@ -73,6 +80,7 @@ func (f *PostgresDB) GetAll(ctx context.Context, entity any) error {
 	return nil
 }
 
+// SeedTable checks if the table is empty and seeds it with the provided records if it is.
 func (f *PostgresDB) SeedTable(ctx context.Context, records any) error {
 
 	v := reflect.ValueOf(records)

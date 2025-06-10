@@ -2,7 +2,7 @@ services:
   app:
     build:
       context: .               
-      dockerfile: Dockerfile  
+      dockerfile: Dockerfile
     container_name: fethcher
     environment:
       - DB_CONNECTION_URL=host=db user=postgres password=postgres dbname=fethcher sslmode=disable

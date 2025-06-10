@@ -16,11 +16,7 @@ import (
 var ErrIncorrectPassword error = errors.New("incorrect password")
 var ErrUserNotFound error = errors.New("user not found")
 
-type AuthMessage struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
+// Fethcher is a struct that provides methods to interact with the Ethereum node and the database.
 type Fethcher struct {
 	logs       *zap.SugaredLogger
 	repo       Repository
@@ -28,6 +24,7 @@ type Fethcher struct {
 	ethService EthereumService
 }
 
+// NewFethcher is a constructor function for the Fethcher type.
 func NewFethcher(logger *zap.SugaredLogger, repo Repository, jwt JWTIssuer, ethereumService EthereumService) *Fethcher {
 	return &Fethcher{
 		logs:       logger,
@@ -37,6 +34,7 @@ func NewFethcher(logger *zap.SugaredLogger, repo Repository, jwt JWTIssuer, ethe
 	}
 }
 
+// Authenticate checks the provided username and password against the database. If the credentials are valid, it generates a JWT token for the user.
 func (f *Fethcher) Authenticate(ctx context.Context, msg AuthMessage) (string, error) {
 	user, err := f.repo.GetUserFromDB(ctx, msg.Username)
 	if err != nil {
@@ -64,6 +62,7 @@ func (f *Fethcher) Authenticate(ctx context.Context, msg AuthMessage) (string, e
 	return signed, nil
 }
 
+// GetTransactions retrieves transactions by their hashes. It first checks the database for existing transactions,
 func (f *Fethcher) GetTransactions(ctx context.Context, transactionsHashes []string) ([]TransactionRecord, error) {
 
 	records := make([]TransactionRecord, 0, len(transactionsHashes))
@@ -113,6 +112,7 @@ func (f *Fethcher) GetTransactions(ctx context.Context, transactionsHashes []str
 	return records, nil
 }
 
+// SaveUserTransactionsHistory saves the transaction history for a user based on the provided JWT token and transaction hashes.
 func (f *Fethcher) SaveUserTransactionsHistory(ctx context.Context, token string, transactionsHashes []string) error {
 	if len(transactionsHashes) == 0 {
 		return nil
@@ -134,6 +134,7 @@ func (f *Fethcher) SaveUserTransactionsHistory(ctx context.Context, token string
 	return nil
 }
 
+// GetUserTransactionsHistory retrieves the transaction history for a user based on the provided JWT token.
 func (f *Fethcher) GetUserTransactionsHistory(ctx context.Context, token string) ([]TransactionRecord, error) {
 	claims, err := f.jwtIssuer.Validate(token)
 	if err != nil {
@@ -159,6 +160,7 @@ func (f *Fethcher) GetUserTransactionsHistory(ctx context.Context, token string)
 	return txRecords, nil
 }
 
+// GetAllDBTransactions retrieves all transactions from the database and returns them as a slice of TransactionRecord.
 func (f *Fethcher) GetAllDBTransactions(ctx context.Context) ([]TransactionRecord, error) {
 	transactions, err := f.repo.GetAllTransactions(ctx)
 	if err != nil {
@@ -169,6 +171,7 @@ func (f *Fethcher) GetAllDBTransactions(ctx context.Context) ([]TransactionRecor
 	return records, nil
 }
 
+// ParseRLP decodes a hex-encoded RLP string into a slice of transaction hashes.
 func (f *Fethcher) ParseRLP(rlphex string) ([]string, error) {
 	data, err := hex.DecodeString(rlphex)
 	if err != nil {
@@ -259,5 +262,6 @@ func (f *Fethcher) getTransactionsFromNode(ctx context.Context, transactionsHash
 			Value:             tx.Value,
 		}
 	}
+
 	return records, err
 }
