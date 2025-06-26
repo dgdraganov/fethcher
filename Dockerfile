@@ -11,7 +11,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o fethcher ./main.go
 RUN useradd -r -u 10001 -g nogroup fethuser
 
 
-FROM scratch
+FROM ubuntu:22.04
 
 COPY --from=builder /app/fethcher /fethcher
 
