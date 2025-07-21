@@ -109,9 +109,9 @@ func run(server *server.HTTPServer) error {
 	case err = <-errChan:
 	}
 
-	shErr := server.Shutdown()
-	if err == nil {
-		return fmt.Errorf("server shutdown: %w", shErr)
+	sdErr := server.Shutdown()
+	if err == http.ErrServerClosed && sdErr != nil {
+		return fmt.Errorf("server shutdown: %w", sdErr)
 	}
 
 	return err
